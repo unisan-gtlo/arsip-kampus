@@ -97,4 +97,19 @@ def get_all_documents():
 @st.cache_data(ttl=10)
 def get_all_users_sheet():
     sheet = get_sheet("users")
-    return sheet.get_all_records()    
+    return sheet.get_all_records()   
+
+def add_document(data: dict):
+    sheet = get_sheet("dokumen")
+    row = [
+        data["id"],
+        data["nomor_dokumen"],
+        data["judul"],
+        data["kategori"],
+        data["deskripsi"],
+        data["file_id"],
+        data["link_view"],
+        data["tgl_upload"],
+        data.get("sifat", "Umum")
+    ]
+    sheet.append_row(row)

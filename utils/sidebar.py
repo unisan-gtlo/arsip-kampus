@@ -131,3 +131,39 @@ def show_sidebar():
             <p style='font-size:10px; color:lightgray; margin:0'>© 2025 Unichsan Gorontalo</p>
         </div>
         """, unsafe_allow_html=True)
+
+    def show_public_sidebar():
+    with st.sidebar:
+        if os.path.exists("logo.png"):
+            with open("logo.png", "rb") as f:
+                logo_b64 = base64.b64encode(f.read()).decode()
+            st.markdown(f"""
+            <div style='text-align:center; padding: 8px 0 4px 0'>
+                <img src='data:image/png;base64,{logo_b64}'
+                     width='72'
+                     style='border-radius:50%; border: 2px solid #1976D2'>
+            </div>
+            """, unsafe_allow_html=True)
+
+        st.markdown("""
+        <div style='text-align:center; padding: 4px 0 8px 0'>
+            <p style='font-weight:700; font-size:14px; margin:4px 0; color:#1976D2'>
+                Sistem Arsip Dokumen
+            </p>
+            <p style='font-size:11px; color:gray; margin:0'>
+                Universitas Ichsan Gorontalo
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.divider()
+        st.markdown("<div class='menu-section'>Menu</div>", unsafe_allow_html=True)
+        st.page_link("pages/0_Pencarian_Publik.py", label="🔍  Pencarian Dokumen", use_container_width=True)
+        st.page_link("app.py", label="🔐  Login", use_container_width=True)
+
+        st.divider()
+        st.markdown("""
+        <div style='text-align:center; margin-top:8px'>
+            <p style='font-size:10px; color:lightgray; margin:0'>© 2025 Unichsan Gorontalo</p>
+        </div>
+        """, unsafe_allow_html=True)

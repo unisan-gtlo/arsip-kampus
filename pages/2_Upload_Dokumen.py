@@ -106,6 +106,14 @@ with st.form("form_upload"):
     )
     judul = st.text_input("Judul Dokumen *")
     deskripsi = st.text_area("Deskripsi Dokumen")
+    deskripsi = st.text_area("Deskripsi Dokumen")
+    sifat = st.radio(
+        "Sifat Dokumen *",
+        options=["Umum", "Rahasia"],
+        horizontal=True,
+        help="Umum = bisa diakses publik tanpa login | Rahasia = hanya untuk user yang login"
+    )
+    drive_link = st.text_input(...)
     drive_link = st.text_input(
         "Link Google Drive *",
         placeholder="https://drive.google.com/file/d/xxxx/view?usp=sharing"
@@ -131,15 +139,16 @@ with st.form("form_upload"):
                     doc_id = str(uuid.uuid4())[:8].upper()
                     tgl = datetime.now().strftime("%Y-%m-%d %H:%M")
                     add_document({
-                        "id": doc_id,
-                        "nomor_dokumen": nomor_dokumen.strip(),
-                        "judul": judul,
-                        "kategori": kategori_dipilih,
-                        "deskripsi": deskripsi,
-                        "file_id": file_id,
-                        "link_view": link_view,
-                        "tgl_upload": tgl
-                    })
+                    "id": doc_id,
+                    "nomor_dokumen": nomor_dokumen.strip(),
+                    "judul": judul,
+                    "kategori": kategori_dipilih,
+                    "deskripsi": deskripsi,
+                    "file_id": file_id,
+                    "link_view": link_view,
+                    "tgl_upload": tgl,
+                    "sifat": sifat
+                })
                 st.session_state.form_submitted = True
                 st.session_state.judul_tersimpan = judul
                 st.rerun()

@@ -229,11 +229,13 @@ else:
                 else:
                     col_info1, col_info2 = st.columns(2)
                     with col_info1:
-                        st.markdown(f"**Nomor:** {row.get('nomor_dokumen', '-') or '-'}")
-                        st.markdown(f"**Kategori:** {row['kategori']}")
-                    with col_info2:
-                        st.markdown(f"**Tanggal Upload:** {row['tgl_upload']}")
-                        st.markdown(f"**Deskripsi:** {row['deskripsi']}")
+                    st.markdown(f"**Nomor:** {row.get('nomor_dokumen', '-') or '-'}")
+                    st.markdown(f"**Kategori:** {row['kategori']}")
+                    sifat_val = str(row.get('sifat', 'Umum')).strip()
+                    if sifat_val == "Rahasia":
+                        st.markdown("**Sifat:** 🔴 Rahasia")
+                    else:
+                        st.markdown("**Sifat:** 🟢 Umum")
 
                     col_a, col_b, col_c, col_d = st.columns([2, 2, 1, 1])
                     with col_a:
