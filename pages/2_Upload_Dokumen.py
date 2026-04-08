@@ -12,6 +12,10 @@ if "user" not in st.session_state:
     st.session_state.user = None
 if "kategori_dipilih" not in st.session_state:
     st.session_state.kategori_dipilih = None
+if "form_submitted" not in st.session_state:
+    st.session_state.form_submitted = False
+if "judul_tersimpan" not in st.session_state:
+    st.session_state.judul_tersimpan = ""
 
 require_role(["admin", "operator"])
 
@@ -38,7 +42,29 @@ if not df_docs.empty and "nomor_dokumen" in df_docs.columns:
             df_kat = df_valid[df_valid["kategori"] == kat]
             nomor_per_kategori[kat] = df_kat.iloc[-1]["nomor_dokumen"]
 
-# Pilih kategori DI LUAR form agar bisa reaktif
+# Tampilkan pesan sukses dan tombol pilihan setelah berhasil simpan
+if st.session_state.form_submitted:
+    st.success(f"✅ Dokumen **'{st.session_state.judul_tersimpan}'** berhasil disimpan!")
+    st.markdown(" ")
+    col_baru, col_dashboard = st.columns(2)
+    with col_baru:
+        if st.button(
+            "➕ Tambah Dokumen Baru",
+            use_container_width=True,
+            type="primary"
+        ):
+            st.session_state.form_submitted = False
+            st.session_state.judul_tersimpan = ""
+            st.rerun()
+    with col_dashboard:
+        st.page_link(
+            "pages/1_Dashboard_Admin.py",
+            label="📊 Kembali ke Dashboard",
+            use_container_width=True
+        )
+    st.stop()
+
+# Pilih kategori di luar form agar reaktif
 kategori_dipilih = st.selectbox(
     "Kategori *",
     KATEGORI,
@@ -51,24 +77,6 @@ if kategori_dipilih in nomor_per_kategori:
 else:
     st.warning(f"📋 Belum ada dokumen untuk kategori **{kategori_dipilih}**")
 
-if st.session_state.form_submitted:
-    st.success("✅ Dokumen berhasil disimpan!")
-    col_baru, col_kosong = st.columns([2, 3])
-    with col_baru:
-        if st.button(
-            "➕ Tambah Dokumen Baru",
-            use_container_width=True,
-            type="primary"
-        ):
-            st.session_state.form_submitted = False
-            st.rerun()
-    with col_kosong:
-        st.page_link(
-            "pages/1_Dashboard_Admin.py",
-            label="Kembali ke Dashboard",
-            icon="📊"
-        )
-        
 st.divider()
 
 st.info("""
@@ -89,8 +97,9 @@ with st.form("form_upload"):
         "Link Google Drive *",
         placeholder="https://drive.google.com/file/d/xxxx/view?usp=sharing"
     )
+
     submit = st.form_submit_button(
-        "Simpan Dokumen",
+        "💾 Simpan Dokumen",
         use_container_width=True,
         type="primary"
     )
@@ -103,27 +112,28 @@ with st.form("form_upload"):
         else:
             file_id, link_view = get_drive_ids_from_link(drive_link)
             if not file_id:
-                st.error("Format link Google Drive tidak valid.")
+                st.error("Format link Google Drive tidak valid. Pastikan link sudah benar.")
             else:
-                doc_id = str(uuid.uuid4())[:8].upper()
-                tgl = datetime.now().strftime("%Y-%m-%d %H:%M")
-                add_document({
-                    "id": doc_id,
-                    "nomor_dokumen": nomor_dokumen.strip(),
-                    "judul": judul,
-                    "kategori": kategori_dipilih,
-                    "deskripsi": deskripsi,
-                    "file_id": file_id,
-                    "link_view": link_view,
-                    "tgl_upload": tgl
-                })
-                st.success(f"Dokumen '{judul}' berhasil disimpan!")
-                st.balloons()
-                st.session_state["form_submitted"] = True
+                with st.spinner("Menyimpan dokumen..."):
+                    doc_id = str(uuid.uuid4())[:8].upper()
+                    tgl = datetime.now().strftime("%Y-%m-%d %H:%M")
+                    add_document({
+                        "id": doc_id,
+                        "nomor_dokumen": nomor_dokumen.strip(),
+                        "judul": judul,
+                        "kategori": kategori_dipilih,
+                        "deskripsi": deskripsi,
+                        "file_id": file_id,
+                        "link_view": link_view,
+                        "tgl_upload": tgl
+                    })
+                st.session_state.form_submitted = True
+                st.session_state.judul_tersimpan = judul
                 st.rerun()
 
 st.divider()
-st.subheader("Preview PDF")
+st.subheader("🔍 Preview PDF")
+st.markdown("Paste link Drive di bawah untuk test preview sebelum disimpan:")
 test_link = st.text_input(
     "Test link preview",
     placeholder="https://drive.google.com/file/d/xxxx/view"
