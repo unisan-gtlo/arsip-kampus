@@ -13,6 +13,8 @@ if "halaman" not in st.session_state:
     st.session_state.halaman = 1
 
 require_role(["admin", "operator"])
+from utils.sidebar import show_sidebar
+show_sidebar()
 
 st.markdown("""
 <style>

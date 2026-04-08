@@ -9,6 +9,8 @@ if "user" not in st.session_state:
     st.session_state.user = None
 
 require_role(["admin"])
+from utils.sidebar import show_sidebar
+show_sidebar()
 
 user = st.session_state.user
 st.title("👥 Kelola Pengguna")

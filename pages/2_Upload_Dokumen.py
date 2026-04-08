@@ -28,6 +28,8 @@ if not st.session_state.upload_page_active:
     st.session_state.upload_page_active = True
 
 require_role(["admin", "operator"])
+from utils.sidebar import show_sidebar
+show_sidebar()
 
 user = st.session_state.user
 st.title("📤 Tambah Dokumen Baru")

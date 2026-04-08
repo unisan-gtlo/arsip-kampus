@@ -12,6 +12,8 @@ if "halaman_user" not in st.session_state:
     st.session_state.halaman_user = 1
 
 require_login()
+from utils.sidebar import show_sidebar
+show_sidebar()
 
 user = st.session_state.user
 st.title("🔍 Portal Pencarian Dokumen")
