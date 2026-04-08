@@ -51,6 +51,24 @@ if kategori_dipilih in nomor_per_kategori:
 else:
     st.warning(f"📋 Belum ada dokumen untuk kategori **{kategori_dipilih}**")
 
+if st.session_state.form_submitted:
+    st.success("✅ Dokumen berhasil disimpan!")
+    col_baru, col_kosong = st.columns([2, 3])
+    with col_baru:
+        if st.button(
+            "➕ Tambah Dokumen Baru",
+            use_container_width=True,
+            type="primary"
+        ):
+            st.session_state.form_submitted = False
+            st.rerun()
+    with col_kosong:
+        st.page_link(
+            "pages/1_Dashboard_Admin.py",
+            label="Kembali ke Dashboard",
+            icon="📊"
+        )
+        
 st.divider()
 
 st.info("""
@@ -101,6 +119,8 @@ with st.form("form_upload"):
                 })
                 st.success(f"Dokumen '{judul}' berhasil disimpan!")
                 st.balloons()
+                st.session_state["form_submitted"] = True
+                st.rerun()
 
 st.divider()
 st.subheader("Preview PDF")
