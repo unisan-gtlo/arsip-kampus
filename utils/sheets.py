@@ -20,6 +20,7 @@ def get_sheet(sheet_name: str):
     spreadsheet = client.open_by_key(spreadsheet_id)
     return spreadsheet.worksheet(sheet_name)
 
+@st.cache_data(ttl=10)
 def get_all_documents():
     sheet = get_sheet("dokumen")
     records = sheet.get_all_records()
@@ -29,6 +30,7 @@ def add_document(data: dict):
     sheet = get_sheet("dokumen")
     row = [
         data["id"],
+        data["nomor_dokumen"],
         data["judul"],
         data["kategori"],
         data["deskripsi"],
@@ -42,6 +44,7 @@ def update_document(row_index: int, data: dict):
     sheet = get_sheet("dokumen")
     sheet.update(f"A{row_index}:G{row_index}", [[
         data["id"],
+        data["nomor_dokumen"],
         data["judul"],
         data["kategori"],
         data["deskripsi"],

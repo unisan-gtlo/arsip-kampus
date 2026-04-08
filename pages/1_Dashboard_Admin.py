@@ -11,28 +11,13 @@ if "user" not in st.session_state:
 
 require_role(["admin", "operator"])
 
-# Custom CSS warna tombol
 st.markdown("""
 <style>
 div[data-testid="column"]:nth-child(1) .stLinkButton a {
-    background-color: #1976D2;
-    color: white;
-    border: none;
-    border-radius: 8px;
-}
-div[data-testid="column"]:nth-child(1) .stLinkButton a:hover {
-    background-color: #1565C0;
-    color: white;
+    background-color: #1976D2; color: white; border: none; border-radius: 8px;
 }
 div[data-testid="column"]:nth-child(2) .stLinkButton a {
-    background-color: #2E7D32;
-    color: white;
-    border: none;
-    border-radius: 8px;
-}
-div[data-testid="column"]:nth-child(2) .stLinkButton a:hover {
-    background-color: #1B5E20;
-    color: white;
+    background-color: #2E7D32; color: white; border: none; border-radius: 8px;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -58,32 +43,51 @@ else:
         kategori_terbanyak = df["kategori"].value_counts().idxmax() if len(df) > 0 else "-"
         st.metric("Kategori Terbanyak", kategori_terbanyak)
     with col3:
-        jumlah_kategori = df["kategori"].nunique()
-        st.metric("Jumlah Kategori", jumlah_kategori)
+        st.metric("Jumlah Kategori", df["kategori"].nunique())
 
     st.divider()
 
-    # Filter dan pencarian
-    col_filter, col_cari = st.columns([2, 3])
-    with col_filter:
+    # Filter, pencarian, dan sortir
+    col_f1, col_f2, col_f3 = st.columns([2, 3, 2])
+    with col_f1:
         kategori_filter = st.selectbox(
             "Filter Kategori",
             options=["Semua"] + sorted(df["kategori"].unique().tolist())
         )
-    with col_cari:
-        cari = st.text_input("Cari judul dokumen...")
+    with col_f2:
+        cari = st.text_input("Cari judul atau nomor dokumen...")
+    with col_f3:
+        sortir = st.selectbox(
+            "Urutkan berdasarkan",
+            options=["Terbaru", "Terlama", "Nomor Dokumen A-Z", "Nomor Dokumen Z-A"]
+        )
 
     filtered = df.copy()
     if kategori_filter != "Semua":
         filtered = filtered[filtered["kategori"] == kategori_filter]
     if cari:
-        filtered = filtered[filtered["judul"].str.contains(cari, case=False, na=False)]
+        mask = (
+            filtered["judul"].str.contains(cari, case=False, na=False) |
+            filtered["nomor_dokumen"].astype(str).str.contains(cari, case=False, na=False)
+        )
+        filtered = filtered[mask]
+
+    # Sortir
+    if sortir == "Terbaru":
+        filtered = filtered.sort_values("tgl_upload", ascending=False)
+    elif sortir == "Terlama":
+        filtered = filtered.sort_values("tgl_upload", ascending=True)
+    elif sortir == "Nomor Dokumen A-Z":
+        filtered = filtered.sort_values("nomor_dokumen", ascending=True)
+    elif sortir == "Nomor Dokumen Z-A":
+        filtered = filtered.sort_values("nomor_dokumen", ascending=False)
 
     st.markdown(f"Menampilkan **{len(filtered)}** dokumen")
     st.divider()
 
     for i, row in filtered.iterrows():
-        with st.expander(f"📄 {row['judul']} — {row['kategori']}"):
+        nomor_label = f"[{row['nomor_dokumen']}] " if str(row.get('nomor_dokumen', '')).strip() else ""
+        with st.expander(f"📄 {nomor_label}{row['judul']} — {row['kategori']}"):
 
             edit_key = f"edit_mode_{row['id']}"
             konfirm_key = f"konfirm_{row['id']}"
@@ -93,10 +97,14 @@ else:
             if konfirm_key not in st.session_state:
                 st.session_state[konfirm_key] = False
 
-            # ---- MODE EDIT ----
+            # MODE EDIT
             if st.session_state[edit_key]:
                 st.markdown("### ✏️ Edit Dokumen")
                 with st.form(key=f"form_edit_{row['id']}"):
+                    nomor_baru = st.text_input(
+                        "Nomor Dokumen",
+                        value=str(row.get("nomor_dokumen", ""))
+                    )
                     judul_baru = st.text_input("Judul", value=row["judul"])
                     kategori_baru = st.selectbox(
                         "Kategori",
@@ -108,19 +116,11 @@ else:
                         "Link Google Drive (kosongkan jika tidak diganti)",
                         placeholder="https://drive.google.com/file/d/xxxx/view"
                     )
-
                     col_save, col_cancel = st.columns(2)
                     with col_save:
-                        simpan = st.form_submit_button(
-                            "💾 Simpan Perubahan",
-                            use_container_width=True,
-                            type="primary"
-                        )
+                        simpan = st.form_submit_button("💾 Simpan", use_container_width=True, type="primary")
                     with col_cancel:
-                        batal = st.form_submit_button(
-                            "✖ Batal",
-                            use_container_width=True
-                        )
+                        batal = st.form_submit_button("✖ Batal", use_container_width=True)
 
                     if simpan:
                         if not judul_baru:
@@ -129,86 +129,66 @@ else:
                             if link_baru.strip():
                                 file_id_baru, link_view_baru = get_drive_ids_from_link(link_baru)
                                 if not file_id_baru:
-                                    st.error("Format link Google Drive tidak valid.")
+                                    st.error("Format link tidak valid.")
                                     st.stop()
                             else:
                                 file_id_baru = row["file_id"]
                                 link_view_baru = row["link_view"]
 
                             all_docs = get_all_documents()
-                            row_index = None
                             for idx, doc in enumerate(all_docs):
                                 if doc["id"] == row["id"]:
-                                    row_index = idx + 2
-                                    break
-
-                            if row_index:
-                                sheet = get_sheet("dokumen")
-                                sheet.update(f"A{row_index}:G{row_index}", [[
-                                    row["id"],
-                                    judul_baru,
-                                    kategori_baru,
-                                    deskripsi_baru,
-                                    file_id_baru,
-                                    link_view_baru,
-                                    row["tgl_upload"]
-                                ]])
-                                st.success("✅ Dokumen berhasil diperbarui!")
-                                st.session_state[edit_key] = False
-                                st.rerun()
+                                    sheet = get_sheet("dokumen")
+                                    sheet.update(f"A{idx+2}:H{idx+2}", [[
+                                        row["id"],
+                                        nomor_baru.strip(),
+                                        judul_baru,
+                                        kategori_baru,
+                                        deskripsi_baru,
+                                        file_id_baru,
+                                        link_view_baru,
+                                        row["tgl_upload"]
+                                    ]])
+                                    st.success("✅ Dokumen berhasil diperbarui!")
+                                    st.session_state[edit_key] = False
+                                    st.rerun()
 
                     if batal:
                         st.session_state[edit_key] = False
                         st.rerun()
 
-            # ---- MODE TAMPIL NORMAL ----
+            # MODE TAMPIL NORMAL
             else:
-                st.markdown(f"**Deskripsi:** {row['deskripsi']}")
-                st.markdown(f"**Tanggal Upload:** {row['tgl_upload']}")
+                col_info1, col_info2 = st.columns(2)
+                with col_info1:
+                    st.markdown(f"**Nomor:** {row.get('nomor_dokumen', '-') or '-'}")
+                    st.markdown(f"**Kategori:** {row['kategori']}")
+                with col_info2:
+                    st.markdown(f"**Tanggal Upload:** {row['tgl_upload']}")
+                    st.markdown(f"**Deskripsi:** {row['deskripsi']}")
 
-                # Tombol aksi
                 col_a, col_b, col_c, col_d = st.columns([2, 2, 1, 1])
                 with col_a:
-                    st.link_button(
-                        "🔵 Buka PDF",
-                        row["link_view"],
-                        use_container_width=True
-                    )
+                    st.link_button("🔵 Buka PDF", row["link_view"], use_container_width=True)
                 with col_b:
                     download_url = f"https://drive.google.com/uc?export=download&id={row['file_id']}"
-                    st.link_button(
-                        "🟢 Download",
-                        download_url,
-                        use_container_width=True
-                    )
+                    st.link_button("🟢 Download", download_url, use_container_width=True)
                 with col_c:
-                    if st.button(
-                        "🟠 Edit",
-                        key=f"edit_{row['id']}",
-                        use_container_width=True
-                    ):
+                    if st.button("🟠 Edit", key=f"edit_{row['id']}", use_container_width=True):
                         st.session_state[edit_key] = True
                         st.session_state[konfirm_key] = False
                         st.rerun()
                 with col_d:
                     if user["role"] == "admin":
                         if not st.session_state[konfirm_key]:
-                            if st.button(
-                                "🔴 Hapus",
-                                key=f"del_{row['id']}",
-                                use_container_width=True
-                            ):
+                            if st.button("🔴 Hapus", key=f"del_{row['id']}", use_container_width=True):
                                 st.session_state[konfirm_key] = True
                                 st.rerun()
                         else:
-                            st.warning(f"Yakin hapus dokumen ini?")
+                            st.warning("Yakin hapus?")
                             col_ya, col_tidak = st.columns(2)
                             with col_ya:
-                                if st.button(
-                                    "✅ Ya",
-                                    key=f"ya_{row['id']}",
-                                    use_container_width=True
-                                ):
+                                if st.button("✅ Ya", key=f"ya_{row['id']}", use_container_width=True):
                                     all_docs = get_all_documents()
                                     for idx, doc in enumerate(all_docs):
                                         if doc["id"] == row["id"]:
@@ -217,10 +197,6 @@ else:
                                             st.success("Dokumen berhasil dihapus.")
                                             st.rerun()
                             with col_tidak:
-                                if st.button(
-                                    "❌ Tidak",
-                                    key=f"tidak_{row['id']}",
-                                    use_container_width=True
-                                ):
+                                if st.button("❌ Tidak", key=f"tidak_{row['id']}", use_container_width=True):
                                     st.session_state[konfirm_key] = False
                                     st.rerun()

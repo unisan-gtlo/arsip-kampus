@@ -1,10 +1,9 @@
 import streamlit as st
 from utils.auth import require_role
 from utils.drive import get_drive_ids_from_link
-from utils.sheets import add_document
+from utils.sheets import add_document, get_all_kategori, get_all_documents
 import uuid
 from datetime import datetime
-from utils.sheets import add_document, get_all_kategori
 
 st.set_page_config(page_title="Upload Dokumen", page_icon="📤", layout="centered")
 
@@ -19,6 +18,20 @@ st.markdown(f"Login sebagai: **{user['nama']}** | Role: `{user['role']}`")
 st.divider()
 
 KATEGORI = get_all_kategori()
+if not KATEGORI:
+    st.warning("Belum ada kategori. Minta admin menambahkan kategori terlebih dahulu.")
+    st.stop()
+
+# Tampilkan nomor dokumen terakhir sebagai referensi
+docs = get_all_documents()
+if docs:
+    import pandas as pd
+    df = pd.DataFrame(docs)
+    if "nomor_dokumen" in df.columns:
+        df_valid = df[df["nomor_dokumen"].astype(str).str.strip() != ""]
+        if not df_valid.empty:
+            nomor_terakhir = df_valid.iloc[-1]["nomor_dokumen"]
+            st.info(f"📋 Nomor dokumen terakhir: **{nomor_terakhir}**")
 
 st.info("""
 **Cara menambah dokumen:**
@@ -28,6 +41,10 @@ st.info("""
 """)
 
 with st.form("form_upload"):
+    nomor_dokumen = st.text_input(
+        "Nomor Dokumen",
+        placeholder="contoh: 001/SK/UNICHSAN/IV/2025"
+    )
     judul = st.text_input("Judul Dokumen *")
     kategori = st.selectbox("Kategori *", KATEGORI)
     deskripsi = st.text_area("Deskripsi Dokumen")
@@ -35,7 +52,7 @@ with st.form("form_upload"):
         "Link Google Drive *",
         placeholder="https://drive.google.com/file/d/xxxx/view?usp=sharing"
     )
-    submit = st.form_submit_button("Simpan Dokumen", use_container_width=True)
+    submit = st.form_submit_button("Simpan Dokumen", use_container_width=True, type="primary")
 
     if submit:
         if not judul:
@@ -45,12 +62,13 @@ with st.form("form_upload"):
         else:
             file_id, link_view = get_drive_ids_from_link(drive_link)
             if not file_id:
-                st.error("Format link Google Drive tidak valid. Pastikan link sudah benar.")
+                st.error("Format link Google Drive tidak valid.")
             else:
                 doc_id = str(uuid.uuid4())[:8].upper()
                 tgl = datetime.now().strftime("%Y-%m-%d %H:%M")
                 add_document({
                     "id": doc_id,
+                    "nomor_dokumen": nomor_dokumen.strip(),
                     "judul": judul,
                     "kategori": kategori,
                     "deskripsi": deskripsi,
@@ -59,13 +77,14 @@ with st.form("form_upload"):
                     "tgl_upload": tgl
                 })
                 st.success(f"Dokumen '{judul}' berhasil disimpan!")
-                st.markdown(f"**Preview link:** {link_view}")
                 st.balloons()
 
 st.divider()
 st.subheader("Preview PDF")
-st.markdown("Paste link Drive di bawah untuk test preview sebelum disimpan:")
-test_link = st.text_input("Test link preview", placeholder="https://drive.google.com/file/d/xxxx/view")
+test_link = st.text_input(
+    "Test link preview",
+    placeholder="https://drive.google.com/file/d/xxxx/view"
+)
 if test_link:
     file_id_test, link_view_test = get_drive_ids_from_link(test_link)
     if link_view_test:
