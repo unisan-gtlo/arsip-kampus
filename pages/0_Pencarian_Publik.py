@@ -170,4 +170,4 @@ st.markdown("""
 """, unsafe_allow_html=True)
 col_l1, col_l2, col_l3 = st.columns([2, 1, 2])
 with col_l2:
-    st.page_link("app.py", label="🔐 Login untuk akses penuh", use_container_width=True)
+    st.page_link("app.py", label="🔐 Login ->akses penuh", use_container_width=True)
