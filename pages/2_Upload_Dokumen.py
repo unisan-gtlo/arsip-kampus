@@ -12,10 +12,20 @@ if "user" not in st.session_state:
     st.session_state.user = None
 if "kategori_dipilih" not in st.session_state:
     st.session_state.kategori_dipilih = None
+# Selalu reset form_submitted saat halaman dimuat ulang dari sidebar
 if "form_submitted" not in st.session_state:
     st.session_state.form_submitted = False
 if "judul_tersimpan" not in st.session_state:
     st.session_state.judul_tersimpan = ""
+
+# Reset otomatis jika masuk dari halaman lain
+if "upload_page_active" not in st.session_state:
+    st.session_state.upload_page_active = False
+
+if not st.session_state.upload_page_active:
+    st.session_state.form_submitted = False
+    st.session_state.judul_tersimpan = ""
+    st.session_state.upload_page_active = True
 
 require_role(["admin", "operator"])
 
@@ -55,6 +65,7 @@ if st.session_state.form_submitted:
         ):
             st.session_state.form_submitted = False
             st.session_state.judul_tersimpan = ""
+            st.session_state.upload_page_active = True
             st.rerun()
     with col_dashboard:
         st.page_link(
