@@ -2,6 +2,7 @@ import streamlit as st
 from utils.auth import require_role
 from utils.drive import get_drive_ids_from_link
 from utils.sheets import add_document, get_all_kategori, get_all_documents
+import pandas as pd
 import uuid
 from datetime import datetime
 
@@ -9,6 +10,8 @@ st.set_page_config(page_title="Upload Dokumen", page_icon="📤", layout="center
 
 if "user" not in st.session_state:
     st.session_state.user = None
+if "kategori_dipilih" not in st.session_state:
+    st.session_state.kategori_dipilih = None
 
 require_role(["admin", "operator"])
 
@@ -22,23 +25,34 @@ if not KATEGORI:
     st.warning("Belum ada kategori. Minta admin menambahkan kategori terlebih dahulu.")
     st.stop()
 
-# Tampilkan nomor dokumen terakhir per kategori
+# Ambil data dokumen untuk referensi nomor terakhir
 docs = get_all_documents()
-if docs:
-    import pandas as pd
-    df = pd.DataFrame(docs)
-    if "nomor_dokumen" in df.columns and "kategori" in df.columns:
-        df_valid = df[df["nomor_dokumen"].astype(str).str.strip() != ""]
-        if not df_valid.empty:
-            st.markdown("##### 📋 Nomor Dokumen Terakhir per Kategori")
-            ringkasan = df_valid.groupby("kategori").last()["nomor_dokumen"].reset_index()
-            ringkasan.columns = ["Kategori", "Nomor Terakhir"]
+df_docs = pd.DataFrame(docs) if docs else pd.DataFrame()
 
-            col_cards = st.columns(min(len(ringkasan), 3))
-            for i, row_r in ringkasan.iterrows():
-                with col_cards[i % 3]:
-                    st.info(f"**{row_r['Kategori']}**\n\n{row_r['Nomor Terakhir']}")
-                    
+# Buat dictionary nomor terakhir per kategori
+nomor_per_kategori = {}
+if not df_docs.empty and "nomor_dokumen" in df_docs.columns:
+    df_valid = df_docs[df_docs["nomor_dokumen"].astype(str).str.strip() != ""]
+    if not df_valid.empty:
+        for kat in df_valid["kategori"].unique():
+            df_kat = df_valid[df_valid["kategori"] == kat]
+            nomor_per_kategori[kat] = df_kat.iloc[-1]["nomor_dokumen"]
+
+# Pilih kategori DI LUAR form agar bisa reaktif
+kategori_dipilih = st.selectbox(
+    "Kategori *",
+    KATEGORI,
+    key="kategori_select"
+)
+
+# Tampilkan nomor terakhir berdasarkan kategori yang dipilih
+if kategori_dipilih in nomor_per_kategori:
+    st.info(f"📋 Nomor terakhir **{kategori_dipilih}**: **{nomor_per_kategori[kategori_dipilih]}**")
+else:
+    st.warning(f"📋 Belum ada dokumen untuk kategori **{kategori_dipilih}**")
+
+st.divider()
+
 st.info("""
 **Cara menambah dokumen:**
 1. Upload file PDF ke Google Drive Anda seperti biasa
@@ -49,16 +63,19 @@ st.info("""
 with st.form("form_upload"):
     nomor_dokumen = st.text_input(
         "Nomor Dokumen",
-        placeholder="contoh: 001/SK/UNICHSAN/IV/2025"
+        placeholder="contoh: 003/SK-UNISAN/V/2025"
     )
     judul = st.text_input("Judul Dokumen *")
-    kategori = st.selectbox("Kategori *", KATEGORI)
     deskripsi = st.text_area("Deskripsi Dokumen")
     drive_link = st.text_input(
         "Link Google Drive *",
         placeholder="https://drive.google.com/file/d/xxxx/view?usp=sharing"
     )
-    submit = st.form_submit_button("Simpan Dokumen", use_container_width=True, type="primary")
+    submit = st.form_submit_button(
+        "Simpan Dokumen",
+        use_container_width=True,
+        type="primary"
+    )
 
     if submit:
         if not judul:
@@ -76,7 +93,7 @@ with st.form("form_upload"):
                     "id": doc_id,
                     "nomor_dokumen": nomor_dokumen.strip(),
                     "judul": judul,
-                    "kategori": kategori,
+                    "kategori": kategori_dipilih,
                     "deskripsi": deskripsi,
                     "file_id": file_id,
                     "link_view": link_view,
