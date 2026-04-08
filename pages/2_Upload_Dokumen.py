@@ -22,17 +22,23 @@ if not KATEGORI:
     st.warning("Belum ada kategori. Minta admin menambahkan kategori terlebih dahulu.")
     st.stop()
 
-# Tampilkan nomor dokumen terakhir sebagai referensi
+# Tampilkan nomor dokumen terakhir per kategori
 docs = get_all_documents()
 if docs:
     import pandas as pd
     df = pd.DataFrame(docs)
-    if "nomor_dokumen" in df.columns:
+    if "nomor_dokumen" in df.columns and "kategori" in df.columns:
         df_valid = df[df["nomor_dokumen"].astype(str).str.strip() != ""]
         if not df_valid.empty:
-            nomor_terakhir = df_valid.iloc[-1]["nomor_dokumen"]
-            st.info(f"📋 Nomor dokumen terakhir: **{nomor_terakhir}**")
+            st.markdown("##### 📋 Nomor Dokumen Terakhir per Kategori")
+            ringkasan = df_valid.groupby("kategori").last()["nomor_dokumen"].reset_index()
+            ringkasan.columns = ["Kategori", "Nomor Terakhir"]
 
+            col_cards = st.columns(min(len(ringkasan), 3))
+            for i, row_r in ringkasan.iterrows():
+                with col_cards[i % 3]:
+                    st.info(f"**{row_r['Kategori']}**\n\n{row_r['Nomor Terakhir']}")
+                    
 st.info("""
 **Cara menambah dokumen:**
 1. Upload file PDF ke Google Drive Anda seperti biasa
