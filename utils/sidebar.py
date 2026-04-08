@@ -132,7 +132,7 @@ def show_sidebar():
         </div>
         """, unsafe_allow_html=True)
 
-    def show_public_sidebar():
+def show_public_sidebar():
     with st.sidebar:
         if os.path.exists("logo.png"):
             with open("logo.png", "rb") as f:
