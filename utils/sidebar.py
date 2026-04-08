@@ -4,31 +4,10 @@ import os
 import base64
 
 def show_sidebar():
-    # Sembunyikan navigasi default Streamlit
     st.markdown("""
     <style>
     [data-testid="stSidebarNav"] { display: none; }
     [data-testid="stSidebar"] { min-width: 260px; max-width: 260px; }
-    .menu-item {
-        display: flex;
-        align-items: center;
-        padding: 10px 16px;
-        border-radius: 10px;
-        margin: 3px 0;
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: 500;
-        color: var(--color-text-primary);
-        text-decoration: none;
-        transition: background 0.2s;
-    }
-    .menu-item:hover { background: var(--color-background-secondary); }
-    .menu-item.active {
-        background: #E3F0FC;
-        color: #1976D2;
-        font-weight: 600;
-    }
-    .menu-icon { margin-right: 10px; font-size: 16px; }
     .menu-section {
         font-size: 11px;
         font-weight: 600;
@@ -41,7 +20,6 @@ def show_sidebar():
     """, unsafe_allow_html=True)
 
     with st.sidebar:
-        # Logo dan nama sistem
         if os.path.exists("logo.png"):
             with open("logo.png", "rb") as f:
                 logo_b64 = base64.b64encode(f.read()).decode()
@@ -72,7 +50,6 @@ def show_sidebar():
         user = st.session_state.user
         role = user["role"]
 
-        # Info user
         role_warna = {"admin": "#E53935", "operator": "#F57C00", "user": "#2E7D32"}
         role_label = {"admin": "Administrator", "operator": "Operator", "user": "User"}
         warna = role_warna.get(role, "gray")
@@ -91,31 +68,21 @@ def show_sidebar():
         </div>
         """, unsafe_allow_html=True)
 
-        # Deteksi halaman aktif
-        current = st.query_params.get("page", "")
-        try:
-            current_page = st.session_state.get("current_page", "")
-        except:
-            current_page = ""
-
-        # Menu navigasi berdasarkan role
         if role in ["admin", "operator"]:
             st.markdown("<div class='menu-section'>Menu Utama</div>", unsafe_allow_html=True)
-
-            st.page_link("app.py",                        label="🏠  Beranda",           use_container_width=True)
-            st.page_link("pages/1_Dashboard_Admin.py",    label="📊  Dashboard Dokumen", use_container_width=True)
-            st.page_link("pages/2_Upload_Dokumen.py",     label="📤  Upload Dokumen",    use_container_width=True)
-            st.page_link("pages/4_Portal_User.py",        label="🔍  Portal Pencarian",  use_container_width=True)
+            st.page_link("app.py",                         label="🏠  Beranda",           use_container_width=True)
+            st.page_link("pages/1_Dashboard_Admin.py",     label="📊  Dashboard Dokumen", use_container_width=True)
+            st.page_link("pages/2_Upload_Dokumen.py",      label="📤  Upload Dokumen",    use_container_width=True)
+            st.page_link("pages/4_Portal_User.py",         label="🔍  Portal Pencarian",  use_container_width=True)
 
             if role == "admin":
                 st.markdown("<div class='menu-section'>Pengaturan</div>", unsafe_allow_html=True)
-                st.page_link("pages/3_Kelola_User.py",       label="👥  Kelola User",       use_container_width=True)
-                st.page_link("pages/5_Kelola_Kategori.py",   label="🗂️  Kelola Kategori",   use_container_width=True)
-
+                st.page_link("pages/3_Kelola_User.py",     label="👥  Kelola User",       use_container_width=True)
+                st.page_link("pages/5_Kelola_Kategori.py", label="🗂️  Kelola Kategori",   use_container_width=True)
         else:
             st.markdown("<div class='menu-section'>Menu</div>", unsafe_allow_html=True)
-            st.page_link("app.py",                 label="🏠  Beranda",          use_container_width=True)
-            st.page_link("pages/4_Portal_User.py", label="🔍  Cari Dokumen",     use_container_width=True)
+            st.page_link("app.py",                         label="🏠  Beranda",           use_container_width=True)
+            st.page_link("pages/4_Portal_User.py",         label="🔍  Cari Dokumen",      use_container_width=True)
 
         st.divider()
 
@@ -125,14 +92,29 @@ def show_sidebar():
             st.session_state.user = None
             st.switch_page("app.py")
 
-        # Footer
         st.markdown("""
         <div style='text-align:center; margin-top:8px'>
             <p style='font-size:10px; color:lightgray; margin:0'>© 2025 Unichsan Gorontalo</p>
         </div>
         """, unsafe_allow_html=True)
 
+
 def show_public_sidebar():
+    st.markdown("""
+    <style>
+    [data-testid="stSidebarNav"] { display: none; }
+    [data-testid="stSidebar"] { min-width: 260px; max-width: 260px; }
+    .menu-section {
+        font-size: 11px;
+        font-weight: 600;
+        color: gray;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        padding: 12px 16px 4px 16px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
     with st.sidebar:
         if os.path.exists("logo.png"):
             with open("logo.png", "rb") as f:
@@ -157,9 +139,18 @@ def show_public_sidebar():
         """, unsafe_allow_html=True)
 
         st.divider()
+
         st.markdown("<div class='menu-section'>Menu</div>", unsafe_allow_html=True)
-        st.page_link("pages/0_Pencarian_Publik.py", label="🔍  Pencarian Dokumen", use_container_width=True)
-        st.page_link("app.py", label="🔐  Login", use_container_width=True)
+        st.page_link(
+            "pages/0_Pencarian_Publik.py",
+            label="🔍  Pencarian Dokumen",
+            use_container_width=True
+        )
+        st.page_link(
+            "app.py",
+            label="🔐  Login",
+            use_container_width=True
+        )
 
         st.divider()
         st.markdown("""
