@@ -41,8 +41,6 @@ def require_role(allowed_roles: list):
         st.stop()
 
 def logout():
-    if st.button("🚪  Logout", use_container_width=True):
-            for key in list(st.session_state.keys()):
-                del st.session_state[key]
-            st.session_state.user = None
-            st.switch_page("app.py")
+    for key in list(st.session_state.keys()):
+        del st.session_state[key]
+    st.session_state.user = None

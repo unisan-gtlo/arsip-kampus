@@ -120,8 +120,10 @@ def show_sidebar():
         st.divider()
 
         if st.button("🚪  Logout", use_container_width=True):
-            logout()
-            st.rerun()
+            for key in list(st.session_state.keys()):
+                del st.session_state[key]
+            st.session_state.user = None
+            st.switch_page("app.py")
 
         # Footer
         st.markdown("""
