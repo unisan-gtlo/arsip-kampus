@@ -91,6 +91,7 @@ if kategori_list:
                     else:
                         sheet = get_sheet("kategori")
                         sheet.update(f"A{idx + 2}", [[nama_baru.strip()]])
+                        st.cache_data.clear()
                         st.session_state[edit_key] = False
                         st.success(f"Kategori berhasil diubah menjadi '{nama_baru}'!")
                         st.rerun()
@@ -109,6 +110,7 @@ if kategori_list:
             with col_ya:
                 if st.button("✅ Ya, Hapus", key=f"ya_kat_{idx}", use_container_width=True):
                     delete_kategori(idx + 2)
+                    st.cache_data.clear()
                     st.session_state[konfirm_key] = False
                     st.success(f"Kategori '{nama}' berhasil dihapus.")
                     st.rerun()
@@ -139,5 +141,6 @@ with st.form("form_tambah_kategori"):
             st.error(f"Kategori '{nama_baru}' sudah ada.")
         else:
             add_kategori(nama_baru.strip())
+            st.cache_data.clear()
             st.success(f"Kategori '{nama_baru}' berhasil ditambahkan!")
             st.rerun()
