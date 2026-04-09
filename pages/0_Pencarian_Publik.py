@@ -132,7 +132,6 @@ else:
                     st.markdown(f"**Nomor:** {row.get('nomor_dokumen', '-') or '-'}")
                     st.markdown(f"**Kategori:** {row['kategori']}")
                 with col_i2:
-                    st.markdown(f"**Tanggal:** {row['tgl_upload']}")
                     st.markdown(f"**Deskripsi:** {row['deskripsi']}")
                 st.markdown("**Preview PDF:**")
                 st.components.v1.iframe(row["link_view"], height=500, scrolling=True)

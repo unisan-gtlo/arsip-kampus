@@ -137,7 +137,7 @@ else:
                     st.markdown(f"**Nomor:** {row.get('nomor_dokumen', '-') or '-'}")
                     st.markdown(f"**Kategori:** {row['kategori']}")
                 with col_info2:
-                    st.markdown(f"**Tanggal Upload:** {row['tgl_upload']}")
+                    
                     st.markdown(f"**Deskripsi:** {row['deskripsi']}")
 
                 st.markdown("**Preview PDF:**")
