@@ -28,7 +28,7 @@ st.markdown(f"Login sebagai: **{user['nama']}** | Role: `{user['role']}`")
 st.divider()
 
 docs = get_all_documents()
-KATEGORI = get_all_kategori()
+KATEGORI = sorted(get_all_kategori())
 
 if not docs:
     st.info("Belum ada dokumen yang tersimpan.")

@@ -35,7 +35,7 @@ if "halaman_publik" not in st.session_state:
     st.session_state.halaman_publik = 1
 
 docs = get_all_documents()
-kategori_list = get_all_kategori()
+kategori_list = sorted(get_all_kategori())
 
 if not docs:
     st.info("Belum ada dokumen tersedia.")

@@ -31,7 +31,7 @@ st.title("📤 Tambah Dokumen Baru")
 st.markdown(f"Login sebagai: **{user['nama']}** | Role: `{user['role']}`")
 st.divider()
 
-KATEGORI = get_all_kategori()
+KATEGORI = sorted(get_all_kategori())
 if not KATEGORI:
     st.warning("Belum ada kategori. Minta admin menambahkan kategori terlebih dahulu.")
     st.stop()

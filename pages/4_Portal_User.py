@@ -26,7 +26,7 @@ if not docs:
     st.info("Belum ada dokumen tersedia.")
 else:
     df = pd.DataFrame(docs)
-    kategori_list = get_all_kategori()
+    kategori_list = sorted(get_all_kategori())
 
     # Filter dan pencarian
     col1, col2, col3, col4 = st.columns([3, 2, 2, 1])
