@@ -27,10 +27,9 @@ Fill in every value:
 - `SECRET_KEY` — generate with `python3 -c "import secrets; print(secrets.token_urlsafe(50))"`
 - `ALLOWED_HOSTS=arsip.unisan-g.id`
 - `DB_PASSWORD` — pick a strong password
-- `GCP_*` fields — copy from the old Streamlit app's `service_account.json` / `.streamlit/secrets.toml`. **`GCP_PRIVATE_KEY` must keep its `\n` as literal two-character sequences**, not real newlines.
-- `DRIVE_FOLDER_ID`, `SPREADSHEET_ID` — same as the old app.
+- `GCP_*`, `SPREADSHEET_ID` — only needed for the one-time `import_legacy_sheets` command (step 7). Copy from the old Streamlit app's `service_account.json` / `.streamlit/secrets.toml` if you plan to run that. **`GCP_PRIVATE_KEY` must keep its `\n` as literal two-character sequences**, not real newlines.
 
-⚠️ **`DRIVE_FOLDER_ID` must point to a folder inside a Google Shared Drive, not a personal "My Drive" folder.** Confirmed during testing: service accounts get a `storageQuotaExceeded` error uploading to regular My Drive storage. A Google Workspace admin needs to create a Shared Drive, add the service account's `client_email` as a member (Content Manager/Editor), and put `DRIVE_FOLDER_ID` inside it. Until this is done, document uploads will fail with a friendly error message (the app won't crash, but uploads won't work).
+📌 **Documents are stored on the VPS's own disk, not Google Drive**, in a Docker volume (`media`) mounted at `/app/media`. This was changed after testing showed the campus Drive account is a personal Gmail account, which Google does not allow service accounts to upload into (`storageQuotaExceeded` — service accounts only get storage quota inside a Google Workspace Shared Drive, and personal Gmail accounts can't create those at all). Staff can still optionally paste a Google Drive share link per-document instead of uploading, if they already have a file hosted on their own Drive — the upload form offers both options. `DRIVE_FOLDER_ID` is no longer used by the app.
 
 ## 3. Build and start (no sudo needed — amiruddin is in the docker group)
 

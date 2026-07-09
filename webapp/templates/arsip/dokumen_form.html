@@ -9,15 +9,6 @@
 
 {% if not is_edit %}
 <div id="nomorHint" class="alert alert-info d-none"></div>
-
-<div class="alert alert-secondary small">
-    <strong>Cara menambah dokumen:</strong>
-    <ol class="mb-0">
-        <li>Pilih kategori dan lengkapi data dokumen di bawah</li>
-        <li>Unggah file PDF langsung dari form ini</li>
-        <li>Klik Simpan Dokumen — sistem akan mengunggah file ke penyimpanan Drive kampus otomatis</li>
-    </ol>
-</div>
 {% endif %}
 
 <form method="post" enctype="multipart/form-data" class="card shadow-sm p-4" style="max-width:640px">
@@ -50,25 +41,61 @@
         {% endfor %}
         <div class="form-text">Umum = bisa diakses publik | Rahasia = hanya user login</div>
     </div>
+
     <div class="mb-3">
-        <label class="form-label">{{ form.file.label }}</label>
-        {{ form.file }}
-        <div class="form-text">{{ form.file.help_text }}</div>
-        {% for error in form.file.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+        <label class="form-label d-block">Sumber File *</label>
+        {% for radio in form.sumber %}
+            <div class="form-check form-check-inline">
+                {{ radio.tag }}
+                <label class="form-check-label" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="mb-3" id="sumberUploadBlock">
+        <label class="form-label">{{ form.upload_file.label }}</label>
+        {{ form.upload_file }}
+        <div class="form-text">{{ form.upload_file.help_text }}</div>
+        {% for error in form.upload_file.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+    </div>
+
+    <div class="mb-3 d-none" id="sumberLinkBlock">
+        <label class="form-label">{{ form.drive_link.label }}</label>
+        {{ form.drive_link }}
+        <div class="form-text">{{ form.drive_link.help_text }}</div>
+        {% for error in form.drive_link.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
     </div>
 
     {% if is_edit %}
     <div class="mb-3">
         <p class="small text-secondary mb-1">File saat ini:</p>
-        <iframe src="{{ dokumen.link_view }}" class="doc-preview-frame" style="height:300px"></iframe>
+        <iframe src="{{ dokumen.preview_url }}" class="doc-preview-frame" style="height:300px"></iframe>
     </div>
     {% endif %}
 
     <button type="submit" class="btn btn-primary w-100">💾 Simpan Dokumen</button>
 </form>
 
-{% if not is_edit %}
 <script>
+    const uploadBlock = document.querySelector("#sumberUploadBlock");
+    const linkBlock = document.querySelector("#sumberLinkBlock");
+    const sumberRadios = document.querySelectorAll('input[name="sumber"]');
+
+    function toggleSumber() {
+        const checked = document.querySelector('input[name="sumber"]:checked');
+        if (!checked) return;
+        if (checked.value === "link") {
+            uploadBlock.classList.add("d-none");
+            linkBlock.classList.remove("d-none");
+        } else {
+            uploadBlock.classList.remove("d-none");
+            linkBlock.classList.add("d-none");
+        }
+    }
+    sumberRadios.forEach((r) => r.addEventListener("change", toggleSumber));
+    toggleSumber();
+
+    {% if not is_edit %}
     const nomorPerKategori = {{ nomor_per_kategori_json|default:"{}"|safe }};
     const katSelect = document.querySelector("#id_kategori");
     const hintBox = document.querySelector("#nomorHint");
@@ -87,6 +114,6 @@
         katSelect.addEventListener("change", updateHint);
         updateHint();
     }
+    {% endif %}
 </script>
-{% endif %}
 {% endblock %}

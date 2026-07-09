@@ -82,10 +82,19 @@ STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
+
+# Uploaded dokumen PDFs (local-upload path). Served only through the
+# access-gated arsip:dokumen_file/dokumen_download views, never exposed
+# directly by nginx/whitenoise - Rahasia documents must stay login-only.
+MEDIA_URL = "media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -93,9 +102,11 @@ LOGIN_URL = "accounts:login"
 LOGIN_REDIRECT_URL = "arsip:home"
 LOGOUT_REDIRECT_URL = "accounts:login"
 
-# Google Drive / Sheets service account (built from individual env vars, never a
-# committed service_account.json). GCP_PRIVATE_KEY is stored with literal \n in
-# the env value and unescaped here.
+# Google service account, used only by the one-time import_legacy_sheets
+# command (built from individual env vars, never a committed
+# service_account.json). GCP_PRIVATE_KEY is stored with literal \n in the
+# env value and unescaped here. Documents themselves are stored on local
+# disk (MEDIA_ROOT below), not Google Drive.
 GCP_SERVICE_ACCOUNT = {
     "type": env("GCP_TYPE", default="service_account"),
     "project_id": env("GCP_PROJECT_ID", default=""),
@@ -106,7 +117,6 @@ GCP_SERVICE_ACCOUNT = {
     "auth_uri": env("GCP_AUTH_URI", default="https://accounts.google.com/o/oauth2/auth"),
     "token_uri": env("GCP_TOKEN_URI", default="https://oauth2.googleapis.com/token"),
 }
-DRIVE_FOLDER_ID = env("DRIVE_FOLDER_ID", default="")
 SPREADSHEET_ID = env("SPREADSHEET_ID", default="")
 
 MAX_UPLOAD_SIZE_MB = env.int("MAX_UPLOAD_SIZE_MB", default=20)

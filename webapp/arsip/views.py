@@ -2,15 +2,17 @@ import json
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 from django.db.models import Count
+from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
 from accounts.models import User
 from accounts.permissions import role_required
 
-from . import drive
+from .drive import parse_drive_link
 from .forms import DokumenForm, KategoriForm
 from .models import Dokumen, Kategori
 from .services import (
@@ -116,22 +118,11 @@ def dokumen_upload(request):
         form = DokumenForm(request.POST, request.FILES)
         if form.is_valid():
             doc = form.save(commit=False)
-            file = form.cleaned_data["file"]
-            try:
-                file_id, link_view = drive.upload_file(file, f"{doc.judul}.pdf")
-            except Exception:
-                messages.error(
-                    request,
-                    "Gagal mengunggah file ke Google Drive. Hubungi admin sistem "
-                    "(kemungkinan konfigurasi folder Drive belum benar).",
-                )
-            else:
-                doc.file_id = file_id
-                doc.link_view = link_view
-                doc.uploaded_by = request.user
-                doc.save()
-                messages.success(request, f"Dokumen '{doc.judul}' berhasil disimpan!")
-                return redirect("arsip:dokumen_upload")
+            _apply_sumber(doc, form)
+            doc.uploaded_by = request.user
+            doc.save()
+            messages.success(request, f"Dokumen '{doc.judul}' berhasil disimpan!")
+            return redirect("arsip:dokumen_upload")
     else:
         form = DokumenForm()
 
@@ -154,20 +145,7 @@ def dokumen_edit(request, pk):
         form = DokumenForm(request.POST, request.FILES, instance=doc)
         if form.is_valid():
             updated = form.save(commit=False)
-            file = form.cleaned_data.get("file")
-            if file:
-                try:
-                    file_id, link_view = drive.replace_file(doc.file_id, file, f"{updated.judul}.pdf")
-                except Exception:
-                    messages.error(
-                        request,
-                        "Gagal mengunggah file baru ke Google Drive. Perubahan lain tidak disimpan.",
-                    )
-                    return render(
-                        request, "arsip/dokumen_form.html", {"form": form, "is_edit": True, "dokumen": doc}
-                    )
-                updated.file_id = file_id
-                updated.link_view = link_view
+            _apply_sumber(updated, form)
             updated.save()
             messages.success(request, "Dokumen berhasil diperbarui!")
             return redirect("arsip:dashboard")
@@ -181,15 +159,70 @@ def dokumen_edit(request, pk):
     )
 
 
+def _apply_sumber(doc, form):
+    """Set doc.file / file_id+link_view from whichever source the form picked,
+    clearing out the other one so a document is never in a mixed state."""
+    sumber = form.cleaned_data["sumber"]
+    if sumber == DokumenForm.SUMBER_UPLOAD:
+        file = form.cleaned_data.get("upload_file")
+        if file:
+            if doc.file:
+                doc.file.delete(save=False)
+            doc.file = file
+            doc.file_id = ""
+            doc.link_view = ""
+    elif sumber == DokumenForm.SUMBER_LINK:
+        drive_link = (form.cleaned_data.get("drive_link") or "").strip()
+        if drive_link:
+            file_id, link_view = parse_drive_link(drive_link)
+            if doc.file:
+                doc.file.delete(save=False)
+            doc.file = None
+            doc.file_id = file_id
+            doc.link_view = link_view
+
+
 @require_POST
 @role_required(User.Role.ADMIN)
 def dokumen_delete(request, pk):
     doc = get_object_or_404(Dokumen, pk=pk)
-    drive.delete_file(doc.file_id)
+    if doc.file:
+        doc.file.delete(save=False)
     judul = doc.judul
     doc.delete()
     messages.success(request, f"Dokumen '{judul}' berhasil dihapus.")
     return redirect("arsip:dashboard")
+
+
+def _check_dokumen_access(request, doc):
+    if doc.is_rahasia and not request.user.is_authenticated:
+        raise PermissionDenied("Dokumen ini hanya dapat diakses oleh pengguna yang login.")
+
+
+def dokumen_file(request, pk):
+    """Serves the preview (inline). Access-gated the same way for both
+    locally-stored files and Drive-link files, unlike the old Drive-API
+    upload path which made every uploaded file public via "anyone with
+    the link" regardless of sifat."""
+    doc = get_object_or_404(Dokumen, pk=pk)
+    _check_dokumen_access(request, doc)
+    if doc.file:
+        return FileResponse(doc.file.open("rb"), content_type="application/pdf")
+    if doc.link_view:
+        return redirect(doc.link_view)
+    raise Http404
+
+
+def dokumen_download(request, pk):
+    doc = get_object_or_404(Dokumen, pk=pk)
+    _check_dokumen_access(request, doc)
+    if doc.file:
+        return FileResponse(
+            doc.file.open("rb"), as_attachment=True, filename=doc.file.name.rsplit("/", 1)[-1]
+        )
+    if doc.file_id:
+        return redirect(f"https://drive.google.com/uc?export=download&id={doc.file_id}")
+    raise Http404
 
 
 @role_required(User.Role.ADMIN)

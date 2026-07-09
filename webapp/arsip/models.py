@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.urls import reverse
 
 
 class Kategori(models.Model):
@@ -27,8 +28,17 @@ class Dokumen(models.Model):
         Kategori, on_delete=models.PROTECT, related_name="dokumen"
     )
     deskripsi = models.TextField(blank=True)
-    file_id = models.CharField(max_length=255)
-    link_view = models.URLField(max_length=500)
+
+    # A document is stored EITHER as a local upload (file) OR as a pasted
+    # Google Drive link (file_id/link_view) - never both. Local upload is
+    # the default path; the Drive-link path exists because the campus
+    # Drive account is a personal Gmail account with no Shared Drive
+    # access, so some staff prefer linking a file they already uploaded
+    # to their own Drive rather than re-uploading it to the server.
+    file = models.FileField(upload_to="dokumen/%Y/%m/", blank=True, null=True)
+    file_id = models.CharField(max_length=255, blank=True)
+    link_view = models.URLField(max_length=500, blank=True)
+
     sifat = models.CharField(max_length=10, choices=Sifat.choices, default=Sifat.UMUM)
     tgl_upload = models.DateTimeField(auto_now_add=True)
     uploaded_by = models.ForeignKey(
@@ -50,8 +60,17 @@ class Dokumen(models.Model):
         verbose_name_plural = "Dokumen"
 
     @property
+    def is_local(self):
+        return bool(self.file)
+
+    @property
+    def preview_url(self):
+        """URL that serves/redirects to the file, access-gated by sifat."""
+        return reverse("arsip:dokumen_file", args=[self.pk])
+
+    @property
     def download_url(self):
-        return f"https://drive.google.com/uc?export=download&id={self.file_id}"
+        return reverse("arsip:dokumen_download", args=[self.pk])
 
     @property
     def is_rahasia(self):

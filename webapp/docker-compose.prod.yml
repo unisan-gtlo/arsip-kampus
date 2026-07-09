@@ -30,6 +30,8 @@ services:
     environment:
       DJANGO_SETTINGS_MODULE: config.settings.prod
       DB_HOST: db
+    volumes:
+      - media:/app/media
     ports:
       # Bind to localhost only - reached from outside via the host's nginx
       - "127.0.0.1:8002:8000"
@@ -39,3 +41,4 @@ services:
 
 volumes:
   pgdata:
+  media:
