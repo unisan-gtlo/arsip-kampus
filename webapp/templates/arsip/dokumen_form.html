@@ -7,25 +7,24 @@
 <p class="text-secondary">Login sebagai: <strong>{{ user.display_name }}</strong> | Role: <code>{{ user.role }}</code></p>
 <hr>
 
-{% if not is_edit %}
-<div id="nomorHint" class="alert alert-info d-none"></div>
-{% endif %}
-
 <form method="post" enctype="multipart/form-data" class="card shadow-sm p-4" style="max-width:640px">
     {% csrf_token %}
 
     <div class="mb-3">
+        <label class="form-label">Kategori *</label>
+        {{ form.kategori }}
+    </div>
+    <div class="mb-3">
         <label class="form-label">Nomor Dokumen</label>
         {{ form.nomor_dokumen }}
+        {% if not is_edit %}
+            <div class="form-text" id="nomorHint"></div>
+        {% endif %}
     </div>
     <div class="mb-3">
         <label class="form-label">Judul Dokumen *</label>
         {{ form.judul }}
         {% for error in form.judul.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Kategori *</label>
-        {{ form.kategori }}
     </div>
     <div class="mb-3">
         <label class="form-label">Deskripsi Dokumen</label>
@@ -50,7 +49,9 @@
                 <label class="form-check-label" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
             </div>
         {% endfor %}
-        <div class="form-text">Berlaku = tampil otomatis di daftar dokumen | Tidak Berlaku = disembunyikan kecuali difilter</div>
+        <div class="form-text">
+            Draf = dokumen masih disusun tim | Berlaku = tampil otomatis di daftar dokumen | Tidak Berlaku = disembunyikan kecuali difilter
+        </div>
     </div>
 
     <div class="mb-3">
@@ -107,23 +108,28 @@
     toggleSumber();
 
     {% if not is_edit %}
+    // Kategori dipilih dulu -> Nomor Dokumen otomatis terisi dengan nomor
+    // terakhir kategori tersebut (bisa diedit manual setelahnya).
     const nomorPerKategori = {{ nomor_per_kategori_json|default:"{}"|safe }};
     const katSelect = document.querySelector("#id_kategori");
+    const nomorInput = document.querySelector("#id_nomor_dokumen");
     const hintBox = document.querySelector("#nomorHint");
+    let lastAutoFilled = "";
 
-    function updateHint() {
+    function updateNomor() {
         const katId = katSelect.value;
-        if (nomorPerKategori[katId]) {
-            hintBox.textContent = "📋 Nomor terakhir untuk kategori ini: " + nomorPerKategori[katId];
-            hintBox.classList.remove("d-none");
-        } else {
-            hintBox.textContent = "📋 Belum ada dokumen untuk kategori ini";
-            hintBox.classList.remove("d-none");
+        const suggested = nomorPerKategori[katId] || "";
+        if (nomorInput.value === "" || nomorInput.value === lastAutoFilled) {
+            nomorInput.value = suggested;
+            lastAutoFilled = suggested;
         }
+        hintBox.textContent = suggested
+            ? "📋 Nomor terakhir untuk kategori ini: " + suggested
+            : "📋 Belum ada dokumen untuk kategori ini";
     }
-    if (katSelect) {
-        katSelect.addEventListener("change", updateHint);
-        updateHint();
+    if (katSelect && nomorInput) {
+        katSelect.addEventListener("change", updateNomor);
+        updateNomor();
     }
     {% endif %}
 </script>

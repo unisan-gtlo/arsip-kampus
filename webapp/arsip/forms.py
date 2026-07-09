@@ -36,7 +36,7 @@ class DokumenForm(forms.ModelForm):
 
     class Meta:
         model = Dokumen
-        fields = ["nomor_dokumen", "judul", "kategori", "deskripsi", "sifat", "status"]
+        fields = ["kategori", "nomor_dokumen", "judul", "deskripsi", "sifat", "status"]
         widgets = {
             "nomor_dokumen": forms.TextInput(
                 attrs={"class": "form-control", "placeholder": "contoh: 003/SK-UNISNA/V/2025"}

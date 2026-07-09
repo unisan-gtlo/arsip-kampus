@@ -29,6 +29,7 @@ class Dokumen(models.Model):
         RAHASIA = "Rahasia", "Rahasia"
 
     class Status(models.TextChoices):
+        DRAF = "Draf", "Draf"
         BERLAKU = "Berlaku", "Berlaku"
         TIDAK_BERLAKU = "Tidak Berlaku", "Tidak Berlaku"
 
@@ -95,6 +96,10 @@ class Dokumen(models.Model):
     @property
     def is_berlaku(self):
         return self.status == self.Status.BERLAKU
+
+    @property
+    def is_draf(self):
+        return self.status == self.Status.DRAF
 
     def __str__(self):
         return f"{self.nomor_dokumen} - {self.judul}" if self.nomor_dokumen else self.judul

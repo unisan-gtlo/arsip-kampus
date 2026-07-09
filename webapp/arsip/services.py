@@ -15,14 +15,18 @@ SORT_LABELS = {
 }
 
 # "berlaku" is the default: listing pages only show active documents unless
-# the user explicitly asks to see inactive/all ones via the status filter.
+# the user explicitly asks to see draft/inactive/all ones via the status
+# filter. Draft documents (still being prepared by the university's
+# document drafting team) are hidden by default the same way.
 STATUS_LABELS = {
     "berlaku": "Berlaku",
+    "draf": "Draf",
     "tidak_berlaku": "Tidak Berlaku",
     "semua": "Semua",
 }
 STATUS_FIELD_VALUE = {
     "berlaku": "Berlaku",
+    "draf": "Draf",
     "tidak_berlaku": "Tidak Berlaku",
 }
 
