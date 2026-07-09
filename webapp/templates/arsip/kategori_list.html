@@ -12,6 +12,7 @@
         <tr>
             <th>#</th>
             <th>Nama Kategori</th>
+            <th>Nomor Dokumen Terakhir</th>
             <th style="width:220px">Aksi</th>
         </tr>
     </thead>
@@ -20,6 +21,7 @@
         <tr id="row-view-{{ kat.id }}">
             <td>{{ forloop.counter }}</td>
             <td>🏷️ {{ kat.nama_kategori }}</td>
+            <td>{% if kat.nomor_terakhir %}<code>{{ kat.nomor_terakhir }}</code>{% else %}<span class="text-secondary">-</span>{% endif %}</td>
             <td>
                 <button type="button" class="btn btn-outline-warning btn-sm" onclick="toggleEdit({{ kat.id }})">🟠 Edit</button>
                 <form method="post" action="{% url 'arsip:kategori_delete' kat.id %}" class="d-inline" onsubmit="return confirm('Hapus kategori {{ kat.nama_kategori }}?');">
@@ -29,17 +31,24 @@
             </td>
         </tr>
         <tr id="row-edit-{{ kat.id }}" class="d-none">
-            <td colspan="3">
-                <form method="post" action="{% url 'arsip:kategori_edit' kat.id %}" class="d-flex gap-2">
+            <td colspan="4">
+                <form method="post" action="{% url 'arsip:kategori_edit' kat.id %}" class="row g-2 align-items-center">
                     {% csrf_token %}
-                    <input type="text" name="nama_kategori" value="{{ kat.nama_kategori }}" class="form-control form-control-sm" required>
-                    <button type="submit" class="btn btn-primary btn-sm">💾 Simpan</button>
-                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="toggleEdit({{ kat.id }})">✖ Batal</button>
+                    <div class="col-md-4">
+                        <input type="text" name="nama_kategori" value="{{ kat.nama_kategori }}" class="form-control form-control-sm" placeholder="Nama Kategori" required>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" name="nomor_terakhir" value="{{ kat.nomor_terakhir }}" class="form-control form-control-sm" placeholder="Nomor Dokumen Terakhir">
+                    </div>
+                    <div class="col-md-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary btn-sm">💾 Simpan</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="toggleEdit({{ kat.id }})">✖ Batal</button>
+                    </div>
                 </form>
             </td>
         </tr>
     {% empty %}
-        <tr><td colspan="3" class="text-secondary">Belum ada kategori.</td></tr>
+        <tr><td colspan="4" class="text-secondary">Belum ada kategori.</td></tr>
     {% endfor %}
     </tbody>
 </table>
@@ -48,9 +57,19 @@
 <h6>➕ Tambah Kategori Baru</h6>
 <form method="post" action="{% url 'arsip:kategori_add' %}" class="card shadow-sm p-4" style="max-width:480px">
     {% csrf_token %}
-    <label class="form-label">Nama Kategori *</label>
-    {{ form.nama_kategori }}
-    <button type="submit" class="btn btn-primary w-100 mt-3">Tambah Kategori</button>
+    <div class="mb-3">
+        <label class="form-label">Nama Kategori *</label>
+        {{ form.nama_kategori }}
+    </div>
+    <div class="mb-3">
+        <label class="form-label">{{ form.nomor_terakhir.label }}</label>
+        {{ form.nomor_terakhir }}
+        <div class="form-text">
+            Opsional. Ditampilkan sebagai referensi saat upload dokumen baru untuk kategori ini,
+            dan otomatis diperbarui setiap kali dokumen baru disimpan.
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary w-100">Tambah Kategori</button>
 </form>
 
 <script>

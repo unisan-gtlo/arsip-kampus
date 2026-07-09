@@ -88,9 +88,12 @@ class DokumenForm(forms.ModelForm):
 class KategoriForm(forms.ModelForm):
     class Meta:
         model = Kategori
-        fields = ["nama_kategori"]
+        fields = ["nama_kategori", "nomor_terakhir"]
         widgets = {
             "nama_kategori": forms.TextInput(
                 attrs={"class": "form-control", "placeholder": "contoh: Peraturan, MOU, Berita Acara"}
+            ),
+            "nomor_terakhir": forms.TextInput(
+                attrs={"class": "form-control", "placeholder": "contoh: 003/SK-UNISAN/V/2025"}
             ),
         }

@@ -6,6 +6,14 @@ from django.urls import reverse
 class Kategori(models.Model):
     nama_kategori = models.CharField(max_length=150, unique=True)
 
+    # Editable setting shown as a hint on the upload form ("nomor terakhir
+    # untuk kategori ini"). Auto-updated whenever a document is saved with a
+    # non-empty nomor_dokumen for this kategori, but admins can also edit it
+    # directly here - e.g. to seed a starting number for a new kategori.
+    nomor_terakhir = models.CharField(
+        max_length=255, blank=True, verbose_name="Nomor Dokumen Terakhir"
+    )
+
     class Meta:
         ordering = ["nama_kategori"]
         verbose_name = "Kategori"

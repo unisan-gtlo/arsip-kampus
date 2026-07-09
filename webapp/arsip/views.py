@@ -103,16 +103,9 @@ def dokumen_upload(request):
         messages.warning(request, "Belum ada kategori. Minta admin menambahkan kategori terlebih dahulu.")
         return redirect("arsip:dashboard")
 
-    nomor_per_kategori = {}
-    for kat in kategori_qs:
-        last_doc = (
-            Dokumen.objects.filter(kategori=kat)
-            .exclude(nomor_dokumen="")
-            .order_by("tgl_upload")
-            .last()
-        )
-        if last_doc:
-            nomor_per_kategori[str(kat.id)] = last_doc.nomor_dokumen
+    nomor_per_kategori = {
+        str(kat.id): kat.nomor_terakhir for kat in kategori_qs if kat.nomor_terakhir
+    }
 
     if request.method == "POST":
         form = DokumenForm(request.POST, request.FILES)
@@ -121,6 +114,7 @@ def dokumen_upload(request):
             _apply_sumber(doc, form)
             doc.uploaded_by = request.user
             doc.save()
+            _sync_nomor_terakhir(doc)
             messages.success(request, f"Dokumen '{doc.judul}' berhasil disimpan!")
             return redirect("arsip:dokumen_upload")
     else:
@@ -147,6 +141,7 @@ def dokumen_edit(request, pk):
             updated = form.save(commit=False)
             _apply_sumber(updated, form)
             updated.save()
+            _sync_nomor_terakhir(updated)
             messages.success(request, "Dokumen berhasil diperbarui!")
             return redirect("arsip:dashboard")
     else:
@@ -157,6 +152,14 @@ def dokumen_edit(request, pk):
         "arsip/dokumen_form.html",
         {"form": form, "is_edit": True, "dokumen": doc},
     )
+
+
+def _sync_nomor_terakhir(doc):
+    """Keep Kategori.nomor_terakhir in step with the most recently saved
+    document number, so the upload-form hint doesn't go stale."""
+    if doc.nomor_dokumen and doc.kategori.nomor_terakhir != doc.nomor_dokumen:
+        doc.kategori.nomor_terakhir = doc.nomor_dokumen
+        doc.kategori.save(update_fields=["nomor_terakhir"])
 
 
 def _apply_sumber(doc, form):
