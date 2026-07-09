@@ -195,6 +195,14 @@ def _apply_sumber(doc, form):
             doc.file_id = file_id
             doc.link_view = link_view
 
+    # DOCX is independent of the sumber toggle above - always a direct
+    # upload, kept as-is if no replacement file is provided.
+    file_docx = form.cleaned_data.get("upload_file_docx")
+    if file_docx:
+        if doc.file_docx:
+            doc.file_docx.delete(save=False)
+        doc.file_docx = file_docx
+
 
 @require_POST
 @role_required(User.Role.ADMIN)
@@ -202,6 +210,8 @@ def dokumen_delete(request, pk):
     doc = get_object_or_404(Dokumen, pk=pk)
     if doc.file:
         doc.file.delete(save=False)
+    if doc.file_docx:
+        doc.file_docx.delete(save=False)
     judul = doc.judul
     doc.delete()
     messages.success(request, f"Dokumen '{judul}' berhasil dihapus.")
@@ -211,6 +221,13 @@ def dokumen_delete(request, pk):
 def _check_dokumen_access(request, doc):
     if doc.is_rahasia and not request.user.is_authenticated:
         raise PermissionDenied("Dokumen ini hanya dapat diakses oleh pengguna yang login.")
+
+
+def _check_docx_access(request):
+    # DOCX is always login-gated, regardless of sifat - anonymous visitors
+    # may only ever access the PDF version.
+    if not request.user.is_authenticated:
+        raise PermissionDenied("File Word (DOCX) hanya dapat diakses oleh pengguna yang login.")
 
 
 def dokumen_file(request, pk):
@@ -237,6 +254,18 @@ def dokumen_download(request, pk):
     if doc.file_id:
         return redirect(f"https://drive.google.com/uc?export=download&id={doc.file_id}")
     raise Http404
+
+
+def dokumen_download_docx(request, pk):
+    doc = get_object_or_404(Dokumen, pk=pk)
+    _check_docx_access(request)
+    if not doc.file_docx:
+        raise Http404
+    return FileResponse(
+        doc.file_docx.open("rb"),
+        as_attachment=True,
+        filename=doc.file_docx.name.rsplit("/", 1)[-1],
+    )
 
 
 @role_required(User.Role.ADMIN)

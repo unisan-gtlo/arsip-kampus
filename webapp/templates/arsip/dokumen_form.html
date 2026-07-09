@@ -85,6 +85,17 @@
     </div>
     {% endif %}
 
+    <hr>
+    <div class="mb-3">
+        <label class="form-label">{{ form.upload_file_docx.label }} <span class="badge bg-secondary">Login-only</span></label>
+        {{ form.upload_file_docx }}
+        <div class="form-text">{{ form.upload_file_docx.help_text }}</div>
+        {% for error in form.upload_file_docx.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+        {% if is_edit and dokumen.has_docx %}
+            <div class="form-text">File DOCX saat ini: <a href="{{ dokumen.download_url_docx }}">unduh</a></div>
+        {% endif %}
+    </div>
+
     <button type="submit" class="btn btn-primary w-100">💾 Simpan Dokumen</button>
 </form>
 

@@ -68,6 +68,11 @@
                     <div class="col-md-3">
                         <a href="{{ doc.download_url }}" target="_blank" class="btn btn-outline-success btn-sm w-100">🟢 Download</a>
                     </div>
+                    {% if doc.has_docx %}
+                    <div class="col-md-3">
+                        <a href="{{ doc.download_url_docx }}" target="_blank" class="btn btn-outline-info btn-sm w-100">📝 DOCX</a>
+                    </div>
+                    {% endif %}
                     <div class="col-md-3">
                         <a href="{% url 'arsip:dokumen_edit' doc.id %}" class="btn btn-outline-warning btn-sm w-100">🟠 Edit</a>
                     </div>

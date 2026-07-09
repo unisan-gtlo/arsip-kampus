@@ -14,6 +14,7 @@ urlpatterns = [
     path("dokumen/<int:pk>/delete/", views.dokumen_delete, name="dokumen_delete"),
     path("dokumen/<int:pk>/file/", views.dokumen_file, name="dokumen_file"),
     path("dokumen/<int:pk>/download/", views.dokumen_download, name="dokumen_download"),
+    path("dokumen/<int:pk>/download-docx/", views.dokumen_download_docx, name="dokumen_download_docx"),
     path("kategori/", views.kategori_list, name="kategori_list"),
     path("kategori/add/", views.kategori_add, name="kategori_add"),
     path("kategori/<int:pk>/edit/", views.kategori_edit, name="kategori_edit"),

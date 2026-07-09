@@ -52,6 +52,13 @@ class Dokumen(models.Model):
     file_id = models.CharField(max_length=255, blank=True)
     link_view = models.URLField(max_length=500, blank=True)
 
+    # Optional editable-master version alongside the PDF. Always local
+    # upload only (no Drive-link option) and always login-gated regardless
+    # of sifat - anonymous visitors may only ever access the PDF.
+    file_docx = models.FileField(
+        upload_to="dokumen_docx/%Y/%m/", blank=True, null=True, verbose_name="File Word (DOCX)"
+    )
+
     sifat = models.CharField(max_length=10, choices=Sifat.choices, default=Sifat.UMUM)
     status = models.CharField(
         max_length=15, choices=Status.choices, default=Status.BERLAKU
@@ -88,6 +95,14 @@ class Dokumen(models.Model):
     @property
     def download_url(self):
         return reverse("arsip:dokumen_download", args=[self.pk])
+
+    @property
+    def has_docx(self):
+        return bool(self.file_docx)
+
+    @property
+    def download_url_docx(self):
+        return reverse("arsip:dokumen_download_docx", args=[self.pk])
 
     @property
     def is_rahasia(self):

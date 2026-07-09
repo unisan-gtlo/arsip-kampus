@@ -29,6 +29,17 @@
                     <div class="col-md-6">
                         <a href="{{ doc.download_url }}" target="_blank" class="btn btn-outline-success btn-sm w-100">🟢 Download PDF</a>
                     </div>
+                    {% if doc.has_docx %}
+                        {% if user.is_authenticated %}
+                            <div class="col-md-6">
+                                <a href="{{ doc.download_url_docx }}" target="_blank" class="btn btn-outline-info btn-sm w-100">📝 Download DOCX</a>
+                            </div>
+                        {% else %}
+                            <div class="col-md-6">
+                                <button class="btn btn-outline-secondary btn-sm w-100" disabled title="Login untuk akses file DOCX">📝 DOCX (login diperlukan)</button>
+                            </div>
+                        {% endif %}
+                    {% endif %}
                 </div>
             </div>
         </div>

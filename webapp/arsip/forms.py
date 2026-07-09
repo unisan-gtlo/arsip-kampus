@@ -33,6 +33,15 @@ class DokumenForm(forms.ModelForm):
         ),
         help_text="Pastikan link sudah diset ke “Anyone with the link” agar bisa diakses.",
     )
+    upload_file_docx = forms.FileField(
+        label="File Word (DOCX)",
+        required=False,
+        widget=forms.ClearableFileInput(attrs={"class": "form-control", "accept": ".docx"}),
+        help_text=(
+            "Opsional. Hanya dapat diakses oleh pengguna yang login (pengunjung tanpa "
+            "login hanya bisa akses versi PDF). Kosongkan saat edit jika tidak diganti."
+        ),
+    )
 
     class Meta:
         model = Dokumen
@@ -82,6 +91,16 @@ class DokumenForm(forms.ModelForm):
                     self.add_error("drive_link", "Format link Google Drive tidak valid.")
             elif is_new:
                 self.add_error("drive_link", "Link Google Drive wajib diisi untuk dokumen baru.")
+
+        file_docx = cleaned.get("upload_file_docx")
+        if file_docx:
+            if not file_docx.name.lower().endswith(".docx"):
+                self.add_error("upload_file_docx", "File harus berformat DOCX.")
+            max_bytes = settings.MAX_UPLOAD_SIZE_MB * 1024 * 1024
+            if file_docx.size > max_bytes:
+                self.add_error(
+                    "upload_file_docx", f"Ukuran file maksimal {settings.MAX_UPLOAD_SIZE_MB}MB."
+                )
 
         return cleaned
 
