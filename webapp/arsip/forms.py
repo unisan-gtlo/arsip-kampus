@@ -36,7 +36,7 @@ class DokumenForm(forms.ModelForm):
 
     class Meta:
         model = Dokumen
-        fields = ["nomor_dokumen", "judul", "kategori", "deskripsi", "sifat"]
+        fields = ["nomor_dokumen", "judul", "kategori", "deskripsi", "sifat", "status"]
         widgets = {
             "nomor_dokumen": forms.TextInput(
                 attrs={"class": "form-control", "placeholder": "contoh: 003/SK-UNISNA/V/2025"}
@@ -45,6 +45,7 @@ class DokumenForm(forms.ModelForm):
             "kategori": forms.Select(attrs={"class": "form-select"}),
             "deskripsi": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
             "sifat": forms.RadioSelect,
+            "status": forms.RadioSelect,
         }
 
     def __init__(self, *args, **kwargs):

@@ -1,9 +1,9 @@
 <form method="get" class="row g-2 align-items-end mb-3">
-    <div class="col-md-4">
+    <div class="col-md-3">
         <label class="form-label small">Cari dokumen...</label>
         <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="ketik judul, nomor, atau deskripsi">
     </div>
-    <div class="col-md-3">
+    <div class="col-md-2">
         <label class="form-label small">Kategori</label>
         <select name="kategori" class="form-select">
             <option value="">Semua</option>
@@ -12,7 +12,15 @@
             {% endfor %}
         </select>
     </div>
-    <div class="col-md-3">
+    <div class="col-md-2">
+        <label class="form-label small">Status</label>
+        <select name="status" class="form-select">
+            {% for key, label in status_labels.items %}
+                <option value="{{ key }}" {% if status == key %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-2">
         <label class="form-label small">Urutkan</label>
         <select name="sort" class="form-select">
             {% for key, label in sort_labels.items %}

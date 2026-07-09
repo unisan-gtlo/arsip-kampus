@@ -18,6 +18,7 @@ from .models import Dokumen, Kategori
 from .services import (
     PER_PAGE_CHOICES,
     SORT_LABELS,
+    STATUS_LABELS,
     filter_dokumen,
     get_per_page,
     querystring_without_page,
@@ -28,10 +29,18 @@ def _search_context(request, qs, *, search_deskripsi=True):
     q = request.GET.get("q", "").strip()
     kategori_id = request.GET.get("kategori", "").strip()
     sort = request.GET.get("sort", "terbaru")
+    status = request.GET.get("status", "berlaku")
+    if status not in STATUS_LABELS:
+        status = "berlaku"
     per_page = get_per_page(request)
 
     filtered = filter_dokumen(
-        qs, q=q, kategori_id=kategori_id or None, sort=sort, search_deskripsi=search_deskripsi
+        qs,
+        q=q,
+        kategori_id=kategori_id or None,
+        sort=sort,
+        status=status,
+        search_deskripsi=search_deskripsi,
     )
     paginator = Paginator(filtered, per_page)
     page_obj = paginator.get_page(request.GET.get("page"))
@@ -44,6 +53,8 @@ def _search_context(request, qs, *, search_deskripsi=True):
         "kategori_id": kategori_id,
         "sort": sort,
         "sort_labels": SORT_LABELS,
+        "status": status,
+        "status_labels": STATUS_LABELS,
         "per_page": per_page,
         "per_page_choices": PER_PAGE_CHOICES,
         "querystring": querystring_without_page(request),

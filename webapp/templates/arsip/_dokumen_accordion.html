@@ -5,6 +5,7 @@
         <h2 class="accordion-header">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#doc-{{ doc.id }}">
                 📄 {% if doc.nomor_dokumen %}[{{ doc.nomor_dokumen }}] {% endif %}{{ doc.judul }} — {{ doc.kategori.nama_kategori }}
+                {% if not doc.is_berlaku %}<span class="badge bg-secondary ms-2">Tidak Berlaku</span>{% endif %}
             </button>
         </h2>
         <div id="doc-{{ doc.id }}" class="accordion-collapse collapse" data-bs-parent="#dokumenAccordion">

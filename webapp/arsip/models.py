@@ -28,6 +28,10 @@ class Dokumen(models.Model):
         UMUM = "Umum", "Umum"
         RAHASIA = "Rahasia", "Rahasia"
 
+    class Status(models.TextChoices):
+        BERLAKU = "Berlaku", "Berlaku"
+        TIDAK_BERLAKU = "Tidak Berlaku", "Tidak Berlaku"
+
     # Not unique: the old app only shows the last nomor per kategori as a hint
     # to the uploader, it never enforced or validated uniqueness.
     nomor_dokumen = models.CharField(max_length=255, blank=True)
@@ -48,6 +52,9 @@ class Dokumen(models.Model):
     link_view = models.URLField(max_length=500, blank=True)
 
     sifat = models.CharField(max_length=10, choices=Sifat.choices, default=Sifat.UMUM)
+    status = models.CharField(
+        max_length=15, choices=Status.choices, default=Status.BERLAKU
+    )
     tgl_upload = models.DateTimeField(auto_now_add=True)
     uploaded_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -62,6 +69,7 @@ class Dokumen(models.Model):
         indexes = [
             models.Index(fields=["kategori"]),
             models.Index(fields=["sifat"]),
+            models.Index(fields=["status"]),
             models.Index(fields=["nomor_dokumen"]),
         ]
         verbose_name = "Dokumen"
@@ -83,6 +91,10 @@ class Dokumen(models.Model):
     @property
     def is_rahasia(self):
         return self.sifat == self.Sifat.RAHASIA
+
+    @property
+    def is_berlaku(self):
+        return self.status == self.Status.BERLAKU
 
     def __str__(self):
         return f"{self.nomor_dokumen} - {self.judul}" if self.nomor_dokumen else self.judul
