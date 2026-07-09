@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{% if is_edit %}Edit Dokumen{% else %}Tambah Dokumen{% endif %}{% endblock %}
+
+{% block content %}
+<h1>{% if is_edit %}✏️ Edit Dokumen{% else %}📤 Tambah Dokumen Baru{% endif %}</h1>
+<p class="text-secondary">Login sebagai: <strong>{{ user.display_name }}</strong> | Role: <code>{{ user.role }}</code></p>
+<hr>
+
+{% if not is_edit %}
+<div id="nomorHint" class="alert alert-info d-none"></div>
+
+<div class="alert alert-secondary small">
+    <strong>Cara menambah dokumen:</strong>
+    <ol class="mb-0">
+        <li>Pilih kategori dan lengkapi data dokumen di bawah</li>
+        <li>Unggah file PDF langsung dari form ini</li>
+        <li>Klik Simpan Dokumen — sistem akan mengunggah file ke penyimpanan Drive kampus otomatis</li>
+    </ol>
+</div>
+{% endif %}
+
+<form method="post" enctype="multipart/form-data" class="card shadow-sm p-4" style="max-width:640px">
+    {% csrf_token %}
+
+    <div class="mb-3">
+        <label class="form-label">Nomor Dokumen</label>
+        {{ form.nomor_dokumen }}
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Judul Dokumen *</label>
+        {{ form.judul }}
+        {% for error in form.judul.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Kategori *</label>
+        {{ form.kategori }}
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Deskripsi Dokumen</label>
+        {{ form.deskripsi }}
+    </div>
+    <div class="mb-3">
+        <label class="form-label d-block">Sifat Dokumen *</label>
+        {% for radio in form.sifat %}
+            <div class="form-check form-check-inline">
+                {{ radio.tag }}
+                <label class="form-check-label" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+            </div>
+        {% endfor %}
+        <div class="form-text">Umum = bisa diakses publik | Rahasia = hanya user login</div>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">{{ form.file.label }}</label>
+        {{ form.file }}
+        <div class="form-text">{{ form.file.help_text }}</div>
+        {% for error in form.file.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+    </div>
+
+    {% if is_edit %}
+    <div class="mb-3">
+        <p class="small text-secondary mb-1">File saat ini:</p>
+        <iframe src="{{ dokumen.link_view }}" class="doc-preview-frame" style="height:300px"></iframe>
+    </div>
+    {% endif %}
+
+    <button type="submit" class="btn btn-primary w-100">💾 Simpan Dokumen</button>
+</form>
+
+{% if not is_edit %}
+<script>
+    const nomorPerKategori = {{ nomor_per_kategori_json|default:"{}"|safe }};
+    const katSelect = document.querySelector("#id_kategori");
+    const hintBox = document.querySelector("#nomorHint");
+
+    function updateHint() {
+        const katId = katSelect.value;
+        if (nomorPerKategori[katId]) {
+            hintBox.textContent = "📋 Nomor terakhir untuk kategori ini: " + nomorPerKategori[katId];
+            hintBox.classList.remove("d-none");
+        } else {
+            hintBox.textContent = "📋 Belum ada dokumen untuk kategori ini";
+            hintBox.classList.remove("d-none");
+        }
+    }
+    if (katSelect) {
+        katSelect.addEventListener("change", updateHint);
+        updateHint();
+    }
+</script>
+{% endif %}
+{% endblock %}

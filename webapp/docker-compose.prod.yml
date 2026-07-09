@@ -1,0 +1,41 @@
+# Production compose for VPS deployment behind the host's existing nginx
+# (see /etc/nginx/conf.d/ on the VPS — every app on this server is proxied
+# this way, e.g. sister_dashboard -> 127.0.0.1:8001). This app does NOT run
+# its own nginx container; the web service binds to 127.0.0.1 only and the
+# host nginx reverse-proxies arsip.unisan-g.id to it. Static files are
+# served by WhiteNoise from inside the gunicorn process (see
+# config/settings/base.py STORAGES), so nginx needs no /static/ alias.
+
+services:
+  db:
+    image: postgres:16
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  web:
+    build: .
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             python manage.py collectstatic --noinput &&
+             gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3"
+    env_file:
+      - .env
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.prod
+      DB_HOST: db
+    ports:
+      # Bind to localhost only - reached from outside via the host's nginx
+      - "127.0.0.1:8002:8000"
+    depends_on:
+      - db
+    restart: unless-stopped
+
+volumes:
+  pgdata:

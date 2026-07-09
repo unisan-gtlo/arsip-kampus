@@ -1,0 +1,112 @@
+:root {
+    --bs-primary: #1976D2;
+    --bs-primary-rgb: 25, 118, 210;
+    --brand-primary: #1976D2;
+}
+
+body {
+    background-color: #F8F9FA;
+}
+
+h1, h2, h3 {
+    color: var(--brand-primary);
+}
+
+.btn-primary {
+    background-color: var(--brand-primary);
+    border-color: var(--brand-primary);
+}
+.btn-primary:hover, .btn-primary:focus {
+    background-color: #125a9c;
+    border-color: #125a9c;
+}
+
+.navbar-brand-title {
+    font-weight: 700;
+    font-size: 14px;
+    margin: 4px 0;
+    color: var(--brand-primary);
+}
+.navbar-brand-sub {
+    font-size: 11px;
+    color: gray;
+    margin: 0;
+}
+
+.sidebar {
+    min-width: 260px;
+    max-width: 260px;
+    min-height: 100vh;
+    background: #fff;
+    border-right: 1px solid #e9ecef;
+    padding: 16px 0;
+}
+
+.sidebar-logo {
+    width: 72px;
+    height: 72px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid var(--brand-primary);
+}
+
+.menu-section {
+    font-size: 11px;
+    font-weight: 600;
+    color: gray;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 12px 16px 4px 16px;
+}
+
+.role-badge {
+    display: inline-block;
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 10px;
+}
+.role-badge-admin { background: #E53935; }
+.role-badge-operator { background: #F57C00; }
+.role-badge-user { background: #2E7D32; }
+
+.user-card {
+    background: #F0F2F6;
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+}
+
+.login-card-wrap {
+    max-width: 420px;
+    margin: 4rem auto;
+}
+
+.login-logo {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid var(--brand-primary);
+}
+
+.home-card {
+    height: 100%;
+}
+.home-card .card-icon {
+    font-size: 2rem;
+}
+
+.doc-preview-frame {
+    width: 100%;
+    height: 500px;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+}
+
+footer.app-footer {
+    text-align: center;
+    font-size: 10px;
+    color: lightgray;
+    margin-top: 8px;
+}

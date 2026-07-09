@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Pencarian Dokumen{% endblock %}
+
+{% block content %}
+<div class="text-center mb-3">
+    <h2 style="color:#1976D2">🔍 Portal Dokumen Publik</h2>
+    <p class="text-secondary">Universitas Ichsan Gorontalo</p>
+</div>
+<hr>
+
+{% include "arsip/_search_bar.html" %}
+{% include "arsip/_dokumen_accordion.html" %}
+{% include "arsip/_pagination.html" %}
+
+<hr>
+<p class="text-center text-secondary small">Dokumen rahasia hanya dapat diakses oleh pengguna yang login.</p>
+<div class="text-center">
+    <a href="{% url 'accounts:login' %}" class="btn btn-outline-primary btn-sm">🔐 Login → akses penuh</a>
+</div>
+{% endblock %}

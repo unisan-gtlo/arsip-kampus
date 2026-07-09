@@ -1,0 +1,56 @@
+{% load static %}
+<div class="sidebar">
+    <div class="text-center px-2 pb-2">
+        <img src="{% static 'img/logo.png' %}" class="sidebar-logo" alt="Logo">
+        <p class="navbar-brand-title mb-0 mt-2">Sistem Arsip Dokumen</p>
+        <p class="navbar-brand-sub">Universitas Ichsan Gorontalo</p>
+    </div>
+    <hr>
+
+    <div class="px-3">
+        <div class="user-card">
+            <p class="fw-semibold mb-0" style="font-size:13px">👤 {{ user.display_name }}</p>
+            <p class="mb-0 mt-1">
+                {% if user.role == "admin" %}
+                    <span class="role-badge role-badge-admin">Administrator</span>
+                {% elif user.role == "operator" %}
+                    <span class="role-badge role-badge-operator">Operator</span>
+                {% else %}
+                    <span class="role-badge role-badge-user">User</span>
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    {% if user.role == "admin" or user.role == "operator" %}
+        <div class="menu-section">Menu Utama</div>
+        <div class="list-group list-group-flush px-2">
+            <a href="{% url 'arsip:home' %}" class="list-group-item list-group-item-action border-0">🏠 Beranda</a>
+            <a href="{% url 'arsip:dashboard' %}" class="list-group-item list-group-item-action border-0">📊 Dashboard Dokumen</a>
+            <a href="{% url 'arsip:dokumen_upload' %}" class="list-group-item list-group-item-action border-0">📤 Upload Dokumen</a>
+            <a href="{% url 'arsip:portal_search' %}" class="list-group-item list-group-item-action border-0">🔍 Portal Pencarian</a>
+        </div>
+        {% if user.role == "admin" %}
+            <div class="menu-section">Pengaturan</div>
+            <div class="list-group list-group-flush px-2">
+                <a href="{% url 'accounts:user_list' %}" class="list-group-item list-group-item-action border-0">👥 Kelola User</a>
+                <a href="{% url 'arsip:kategori_list' %}" class="list-group-item list-group-item-action border-0">🗂️ Kelola Kategori</a>
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="menu-section">Menu</div>
+        <div class="list-group list-group-flush px-2">
+            <a href="{% url 'arsip:home' %}" class="list-group-item list-group-item-action border-0">🏠 Beranda</a>
+            <a href="{% url 'arsip:portal_search' %}" class="list-group-item list-group-item-action border-0">🔍 Cari Dokumen</a>
+        </div>
+    {% endif %}
+
+    <hr>
+    <div class="px-3">
+        <form method="post" action="{% url 'accounts:logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-secondary btn-sm w-100">🚪 Logout</button>
+        </form>
+    </div>
+    <footer class="app-footer">© 2025 Unichsan Gorontalo</footer>
+</div>

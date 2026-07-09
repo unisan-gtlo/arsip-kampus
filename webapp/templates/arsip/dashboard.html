@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Dashboard Dokumen{% endblock %}
+
+{% block content %}
+<h1>📊 Dashboard Dokumen</h1>
+<p class="text-secondary">Login sebagai: <strong>{{ user.display_name }}</strong> | Role: <code>{{ user.role }}</code></p>
+<hr>
+
+<div class="row g-3 mb-3">
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <p class="text-secondary small mb-1">Total Dokumen</p>
+                <h3 class="mb-0">{{ total_dokumen }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <p class="text-secondary small mb-1">Kategori Terbanyak</p>
+                <h3 class="mb-0">{{ kategori_terbanyak }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <p class="text-secondary small mb-1">Jumlah Kategori</p>
+                <h3 class="mb-0">{{ jumlah_kategori }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+<hr>
+
+{% include "arsip/_search_bar.html" %}
+
+{% if page_obj.object_list %}
+<div class="accordion" id="dashboardAccordion">
+    {% for doc in page_obj %}
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#dash-doc-{{ doc.id }}">
+                📄 {% if doc.nomor_dokumen %}[{{ doc.nomor_dokumen }}] {% endif %}{{ doc.judul }} — {{ doc.kategori.nama_kategori }}
+                {% if doc.is_rahasia %}<span class="badge bg-danger ms-2">Rahasia</span>{% else %}<span class="badge bg-success ms-2">Umum</span>{% endif %}
+            </button>
+        </h2>
+        <div id="dash-doc-{{ doc.id }}" class="accordion-collapse collapse" data-bs-parent="#dashboardAccordion">
+            <div class="accordion-body">
+                <div class="row mb-2">
+                    <div class="col-md-6">
+                        <p class="mb-1"><strong>Nomor:</strong> {{ doc.nomor_dokumen|default:"-" }}</p>
+                        <p class="mb-1"><strong>Kategori:</strong> {{ doc.kategori.nama_kategori }}</p>
+                        <p class="mb-1"><strong>Sifat:</strong> {{ doc.sifat }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-1"><strong>Tanggal Upload:</strong> {{ doc.tgl_upload|date:"d-m-Y H:i" }}</p>
+                        <p class="mb-1"><strong>Deskripsi:</strong> {{ doc.deskripsi|default:"-" }}</p>
+                    </div>
+                </div>
+                <div class="row g-2">
+                    <div class="col-md-3">
+                        <a href="{{ doc.link_view }}" target="_blank" class="btn btn-outline-primary btn-sm w-100">🔵 Buka PDF</a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{{ doc.download_url }}" target="_blank" class="btn btn-outline-success btn-sm w-100">🟢 Download</a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{% url 'arsip:dokumen_edit' doc.id %}" class="btn btn-outline-warning btn-sm w-100">🟠 Edit</a>
+                    </div>
+                    {% if user.role == "admin" %}
+                    <div class="col-md-3">
+                        <form method="post" action="{% url 'arsip:dokumen_delete' doc.id %}" onsubmit="return confirm('Yakin hapus dokumen ini?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-danger btn-sm w-100">🔴 Hapus</button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-warning">Tidak ada dokumen yang sesuai pencarian.</div>
+{% endif %}
+
+{% include "arsip/_pagination.html" %}
+{% endblock %}

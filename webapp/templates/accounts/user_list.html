@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Kelola User{% endblock %}
+
+{% block content %}
+<h1>👥 Kelola Pengguna</h1>
+<p class="text-secondary">Login sebagai: <strong>{{ user.display_name }}</strong> | Role: <code>{{ user.role }}</code></p>
+<hr>
+
+<h6>Daftar Pengguna ({{ users|length }})</h6>
+<table class="table table-hover align-middle">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Username</th>
+            <th>Nama</th>
+            <th>Role</th>
+            <th>Aksi</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for u in users %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td><code>{{ u.username }}</code></td>
+            <td>{{ u.nama }}</td>
+            <td>
+                {% if u.role == "admin" %}🔴 admin{% elif u.role == "operator" %}🟠 operator{% else %}🟢 user{% endif %}
+            </td>
+            <td>
+                {% if u.pk == request.user.pk %}
+                    <span class="text-secondary small">(akun aktif)</span>
+                {% else %}
+                    <form method="post" action="{% url 'accounts:user_delete' u.pk %}" onsubmit="return confirm('Hapus user {{ u.username }}?');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger btn-sm">🔴 Hapus</button>
+                    </form>
+                {% endif %}
+            </td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="5" class="text-secondary">Belum ada pengguna.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<hr>
+<h6>➕ Tambah Pengguna Baru</h6>
+<form method="post" action="{% url 'accounts:user_add' %}" class="card shadow-sm p-4" style="max-width:640px">
+    {% csrf_token %}
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label class="form-label">Username *</label>
+            {{ form.username }}
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Password *</label>
+            {{ form.password }}
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Nama Lengkap *</label>
+            {{ form.nama }}
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Role *</label>
+            {{ form.role }}
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary w-100 mt-3">Tambah User</button>
+</form>
+{% endblock %}

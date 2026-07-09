@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Portal Pencarian{% endblock %}
+
+{% block content %}
+<h1>🔍 Portal Pencarian Dokumen</h1>
+<p class="text-secondary">Login sebagai: <strong>{{ user.display_name }}</strong> | Role: <code>{{ user.role }}</code></p>
+<hr>
+
+{% include "arsip/_search_bar.html" %}
+{% include "arsip/_dokumen_accordion.html" %}
+{% include "arsip/_pagination.html" %}
+{% endblock %}

@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}Beranda{% endblock %}
+
+{% block content %}
+<h1>🏠 Beranda</h1>
+<p>Selamat datang, <strong>{{ user.display_name }}</strong>!</p>
+<hr>
+
+{% if user.role == "admin" %}
+<div class="row g-3">
+    <div class="col-md-4">
+        <div class="card home-card shadow-sm">
+            <div class="card-body">
+                <div class="card-icon">📊</div>
+                <h6 class="fw-bold mt-2">Dashboard Dokumen</h6>
+                <p class="text-secondary small">Lihat & kelola semua dokumen arsip</p>
+                <a href="{% url 'arsip:dashboard' %}" class="small">Buka Dashboard →</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card home-card shadow-sm">
+            <div class="card-body">
+                <div class="card-icon">📤</div>
+                <h6 class="fw-bold mt-2">Upload Dokumen</h6>
+                <p class="text-secondary small">Tambahkan dokumen arsip baru</p>
+                <a href="{% url 'arsip:dokumen_upload' %}" class="small">Upload Sekarang →</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card home-card shadow-sm">
+            <div class="card-body">
+                <div class="card-icon">🔍</div>
+                <h6 class="fw-bold mt-2">Portal Pencarian</h6>
+                <p class="text-secondary small">Cari dan preview dokumen</p>
+                <a href="{% url 'arsip:portal_search' %}" class="small">Cari Dokumen →</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card home-card shadow-sm">
+            <div class="card-body">
+                <div class="card-icon">👥</div>
+                <h6 class="fw-bold mt-2">Kelola User</h6>
+                <p class="text-secondary small">Tambah & hapus pengguna sistem</p>
+                <a href="{% url 'accounts:user_list' %}" class="small">Kelola User →</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card home-card shadow-sm">
+            <div class="card-body">
+                <div class="card-icon">🗂️</div>
+                <h6 class="fw-bold mt-2">Kelola Kategori</h6>
+                <p class="text-secondary small">Atur master kategori dokumen</p>
+                <a href="{% url 'arsip:kategori_list' %}" class="small">Kelola Kategori →</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% elif user.role == "operator" %}
+<div class="row g-3">
+    <div class="col-md-4">
+        <div class="card home-card shadow-sm">
+            <div class="card-body">
+                <div class="card-icon">📊</div>
+                <h6 class="fw-bold mt-2">Dashboard Dokumen</h6>
+                <p class="text-secondary small">Lihat semua dokumen arsip</p>
+                <a href="{% url 'arsip:dashboard' %}" class="small">Buka Dashboard →</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card home-card shadow-sm">
+            <div class="card-body">
+                <div class="card-icon">📤</div>
+                <h6 class="fw-bold mt-2">Upload Dokumen</h6>
+                <p class="text-secondary small">Tambahkan dokumen arsip baru</p>
+                <a href="{% url 'arsip:dokumen_upload' %}" class="small">Upload Sekarang →</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card home-card shadow-sm">
+            <div class="card-body">
+                <div class="card-icon">🔍</div>
+                <h6 class="fw-bold mt-2">Portal Pencarian</h6>
+                <p class="text-secondary small">Cari dan preview dokumen</p>
+                <a href="{% url 'arsip:portal_search' %}" class="small">Cari Dokumen →</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% else %}
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="card home-card shadow-sm">
+            <div class="card-body">
+                <div class="card-icon">🔍</div>
+                <h6 class="fw-bold mt-2">Portal Pencarian Dokumen</h6>
+                <p class="text-secondary small">Cari, preview, dan download dokumen kampus</p>
+                <a href="{% url 'arsip:portal_search' %}" class="small">Cari Dokumen →</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

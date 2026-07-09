@@ -1,0 +1,8 @@
+.env
+.venv_check/
+__pycache__/
+*.pyc
+staticfiles/
+media/
+db.sqlite3
+certbot/

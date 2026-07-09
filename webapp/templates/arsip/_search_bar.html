@@ -1,0 +1,38 @@
+<form method="get" class="row g-2 align-items-end mb-3">
+    <div class="col-md-4">
+        <label class="form-label small">Cari dokumen...</label>
+        <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="ketik judul, nomor, atau deskripsi">
+    </div>
+    <div class="col-md-3">
+        <label class="form-label small">Kategori</label>
+        <select name="kategori" class="form-select">
+            <option value="">Semua</option>
+            {% for kat in kategori_list %}
+                <option value="{{ kat.id }}" {% if kategori_id == kat.id|stringformat:"s" %}selected{% endif %}>{{ kat.nama_kategori }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label class="form-label small">Urutkan</label>
+        <select name="sort" class="form-select">
+            {% for key, label in sort_labels.items %}
+                <option value="{{ key }}" {% if sort == key %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-2">
+        <label class="form-label small">Per halaman</label>
+        <select name="per_halaman" class="form-select">
+            {% for n in per_page_choices %}
+                <option value="{{ n }}" {% if per_page == n %}selected{% endif %}>{{ n }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary btn-sm">Terapkan</button>
+    </div>
+</form>
+<p class="text-secondary small">
+    Ditemukan <strong>{{ total_data }}</strong> dokumen
+    {% if paginator.num_pages %} | Halaman <strong>{{ page_obj.number }}/{{ paginator.num_pages }}</strong>{% endif %}
+</p>

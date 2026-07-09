@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "arsip-django",
+      "runtimeExecutable": "docker",
+      "runtimeArgs": ["compose", "-f", "webapp/docker-compose.yml", "--project-directory", "webapp", "up"],
+      "port": 8000
+    }
+  ]
+}

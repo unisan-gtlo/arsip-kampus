@@ -1,0 +1,16 @@
+{% load static %}
+<div class="sidebar">
+    <div class="text-center px-2 pb-2">
+        <img src="{% static 'img/logo.png' %}" class="sidebar-logo" alt="Logo">
+        <p class="navbar-brand-title mb-0 mt-2">Sistem Arsip Dokumen</p>
+        <p class="navbar-brand-sub">Universitas Ichsan Gorontalo</p>
+    </div>
+    <hr>
+    <div class="menu-section">Menu</div>
+    <div class="list-group list-group-flush px-2">
+        <a href="{% url 'arsip:public_search' %}" class="list-group-item list-group-item-action border-0">🔍 Pencarian Dokumen</a>
+        <a href="{% url 'accounts:login' %}" class="list-group-item list-group-item-action border-0">🔐 Login</a>
+    </div>
+    <hr>
+    <footer class="app-footer">© 2025 Unichsan Gorontalo</footer>
+</div>

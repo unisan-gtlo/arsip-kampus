@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Kelola Kategori{% endblock %}
+
+{% block content %}
+<h1>🗂️ Kelola Kategori Dokumen</h1>
+<p class="text-secondary">Login sebagai: <strong>{{ user.display_name }}</strong> | Role: <code>{{ user.role }}</code></p>
+<hr>
+
+<h6>Daftar Kategori ({{ kategori_list|length }})</h6>
+<table class="table table-hover align-middle">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Nama Kategori</th>
+            <th style="width:220px">Aksi</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for kat in kategori_list %}
+        <tr id="row-view-{{ kat.id }}">
+            <td>{{ forloop.counter }}</td>
+            <td>🏷️ {{ kat.nama_kategori }}</td>
+            <td>
+                <button type="button" class="btn btn-outline-warning btn-sm" onclick="toggleEdit({{ kat.id }})">🟠 Edit</button>
+                <form method="post" action="{% url 'arsip:kategori_delete' kat.id %}" class="d-inline" onsubmit="return confirm('Hapus kategori {{ kat.nama_kategori }}?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline-danger btn-sm">🔴 Hapus</button>
+                </form>
+            </td>
+        </tr>
+        <tr id="row-edit-{{ kat.id }}" class="d-none">
+            <td colspan="3">
+                <form method="post" action="{% url 'arsip:kategori_edit' kat.id %}" class="d-flex gap-2">
+                    {% csrf_token %}
+                    <input type="text" name="nama_kategori" value="{{ kat.nama_kategori }}" class="form-control form-control-sm" required>
+                    <button type="submit" class="btn btn-primary btn-sm">💾 Simpan</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="toggleEdit({{ kat.id }})">✖ Batal</button>
+                </form>
+            </td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="3" class="text-secondary">Belum ada kategori.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<hr>
+<h6>➕ Tambah Kategori Baru</h6>
+<form method="post" action="{% url 'arsip:kategori_add' %}" class="card shadow-sm p-4" style="max-width:480px">
+    {% csrf_token %}
+    <label class="form-label">Nama Kategori *</label>
+    {{ form.nama_kategori }}
+    <button type="submit" class="btn btn-primary w-100 mt-3">Tambah Kategori</button>
+</form>
+
+<script>
+    function toggleEdit(id) {
+        document.getElementById("row-view-" + id).classList.toggle("d-none");
+        document.getElementById("row-edit-" + id).classList.toggle("d-none");
+    }
+</script>
+{% endblock %}
