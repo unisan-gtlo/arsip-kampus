@@ -27,6 +27,7 @@
         <div class="list-group list-group-flush px-2">
             <a href="{% url 'arsip:home' %}" class="list-group-item list-group-item-action border-0">🏠 Beranda</a>
             <a href="{% url 'arsip:dashboard' %}" class="list-group-item list-group-item-action border-0">📊 Dashboard Dokumen</a>
+            <a href="{% url 'arsip:dashboard' %}?status=draf" class="list-group-item list-group-item-action border-0">📝 Dokumen Draf</a>
             <a href="{% url 'arsip:dokumen_upload' %}" class="list-group-item list-group-item-action border-0">📤 Upload Dokumen</a>
             <a href="{% url 'arsip:portal_search' %}" class="list-group-item list-group-item-action border-0">🔍 Portal Pencarian</a>
         </div>

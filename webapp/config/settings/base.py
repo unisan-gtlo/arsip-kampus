@@ -102,6 +102,12 @@ LOGIN_URL = "accounts:login"
 LOGIN_REDIRECT_URL = "arsip:home"
 LOGOUT_REDIRECT_URL = "accounts:login"
 
+# Django's default (DENY) blocks the PDF preview <iframe> on arsip:dokumen_file
+# from rendering even though it's the same site embedding its own content.
+# SAMEORIGIN still blocks other sites from framing us (clickjacking protection
+# stays intact), it only allows our own pages to embed our own responses.
+X_FRAME_OPTIONS = "SAMEORIGIN"
+
 # Google service account, used only by the one-time import_legacy_sheets
 # command (built from individual env vars, never a committed
 # service_account.json). GCP_PRIVATE_KEY is stored with literal \n in the

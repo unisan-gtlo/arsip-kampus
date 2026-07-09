@@ -1,8 +1,13 @@
 {% extends "base.html" %}
-{% block title %}Dashboard Dokumen{% endblock %}
+{% block title %}{% if status == "draf" %}Dokumen Draf{% else %}Dashboard Dokumen{% endif %}{% endblock %}
 
 {% block content %}
-<h1>📊 Dashboard Dokumen</h1>
+{% if status == "draf" %}
+    <h1>📝 Dokumen Draf</h1>
+    <p class="text-secondary">Dokumen yang masih disusun tim, belum berstatus Berlaku.</p>
+{% else %}
+    <h1>📊 Dashboard Dokumen</h1>
+{% endif %}
 <p class="text-secondary">Login sebagai: <strong>{{ user.display_name }}</strong> | Role: <code>{{ user.role }}</code></p>
 <hr>
 
