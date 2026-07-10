@@ -28,7 +28,10 @@
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Password</label>
-                    {{ form.password }}
+                    <div class="input-group">
+                        {{ form.password }}
+                        <button class="btn btn-outline-secondary" type="button" id="togglePassword" tabindex="-1">👁️</button>
+                    </div>
                 </div>
                 <button type="submit" class="btn btn-primary w-100">Login</button>
             </form>
@@ -40,4 +43,16 @@
         <a href="{% url 'arsip:public_search' %}" class="small">🔍 Cari dokumen tanpa login</a>
     </p>
 </div>
+
+<script>
+    const togglePassword = document.querySelector("#togglePassword");
+    const passwordInput = document.querySelector("#id_password");
+    if (togglePassword && passwordInput) {
+        togglePassword.addEventListener("click", () => {
+            const isHidden = passwordInput.type === "password";
+            passwordInput.type = isHidden ? "text" : "password";
+            togglePassword.textContent = isHidden ? "🙈" : "👁️";
+        });
+    }
+</script>
 {% endblock %}
