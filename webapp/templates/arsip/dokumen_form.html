@@ -22,6 +22,14 @@
         {% endif %}
     </div>
     <div class="mb-3">
+        <label class="form-label">{{ form.urutan.label }}</label>
+        {{ form.urutan }}
+        <div class="form-text">
+            Angka lebih kecil tampil lebih dulu di dalam kategorinya. Dokumen dengan urutan sama
+            diurutkan berdasarkan tanggal upload terbaru.
+        </div>
+    </div>
+    <div class="mb-3">
         <label class="form-label">Judul Dokumen *</label>
         {{ form.judul }}
         {% for error in form.judul.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}

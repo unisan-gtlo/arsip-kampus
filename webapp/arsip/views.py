@@ -28,7 +28,7 @@ from .services import (
 def _search_context(request, qs, *, search_deskripsi=True):
     q = request.GET.get("q", "").strip()
     kategori_id = request.GET.get("kategori", "").strip()
-    sort = request.GET.get("sort", "terbaru")
+    sort = request.GET.get("sort", "urutan")
     status = request.GET.get("status", "berlaku")
     if status not in STATUS_LABELS:
         status = "berlaku"

@@ -1,13 +1,19 @@
 from django.db.models import Q
 
+# Each value is a tuple of order_by() fields, applied in sequence.
+# "urutan" is the default: kategori's own display order first, then each
+# document's manual position within that kategori - the same pattern used to
+# arrange Kelola Kategori (Universitas -> Fakultas -> Prodi -> ...).
 SORT_MAP = {
-    "terbaru": "-tgl_upload",
-    "terlama": "tgl_upload",
-    "nomor_az": "nomor_dokumen",
-    "nomor_za": "-nomor_dokumen",
+    "urutan": ("kategori__urutan", "kategori__nama_kategori", "urutan", "-tgl_upload"),
+    "terbaru": ("-tgl_upload",),
+    "terlama": ("tgl_upload",),
+    "nomor_az": ("nomor_dokumen",),
+    "nomor_za": ("-nomor_dokumen",),
 }
 
 SORT_LABELS = {
+    "urutan": "Urutan",
     "terbaru": "Terbaru",
     "terlama": "Terlama",
     "nomor_az": "Nomor A-Z",
@@ -33,7 +39,7 @@ STATUS_FIELD_VALUE = {
 PER_PAGE_CHOICES = [5, 10, 25, 50]
 
 
-def filter_dokumen(qs, q="", kategori_id=None, sort="terbaru", status="berlaku", search_deskripsi=True):
+def filter_dokumen(qs, q="", kategori_id=None, sort="urutan", status="berlaku", search_deskripsi=True):
     """Shared search/filter/sort logic for public, portal, and dashboard listings.
 
     search_deskripsi=False mirrors the old dashboard behaviour, which only
@@ -50,7 +56,7 @@ def filter_dokumen(qs, q="", kategori_id=None, sort="terbaru", status="berlaku",
         if search_deskripsi:
             conditions |= Q(deskripsi__icontains=q)
         qs = qs.filter(conditions)
-    return qs.order_by(SORT_MAP.get(sort, "-tgl_upload"))
+    return qs.order_by(*SORT_MAP.get(sort, SORT_MAP["urutan"]))
 
 
 def get_per_page(request):

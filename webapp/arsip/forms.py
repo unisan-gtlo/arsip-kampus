@@ -45,11 +45,12 @@ class DokumenForm(forms.ModelForm):
 
     class Meta:
         model = Dokumen
-        fields = ["kategori", "nomor_dokumen", "judul", "deskripsi", "sifat", "status"]
+        fields = ["kategori", "nomor_dokumen", "urutan", "judul", "deskripsi", "sifat", "status"]
         widgets = {
             "nomor_dokumen": forms.TextInput(
                 attrs={"class": "form-control", "placeholder": "contoh: 003/SK-UNISNA/V/2025"}
             ),
+            "urutan": forms.NumberInput(attrs={"class": "form-control", "min": 0}),
             "judul": forms.TextInput(attrs={"class": "form-control"}),
             "kategori": forms.Select(attrs={"class": "form-select"}),
             "deskripsi": forms.Textarea(attrs={"class": "form-control", "rows": 3}),

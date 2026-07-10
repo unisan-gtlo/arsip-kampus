@@ -47,6 +47,11 @@ class Dokumen(models.Model):
     )
     deskripsi = models.TextField(blank=True)
 
+    # Manual display order within its kategori (lower shows first), mirroring
+    # Kategori.urutan. Used by the "Urutan" sort option, which is the default
+    # for listing pages: kategori.urutan first, then this field within it.
+    urutan = models.PositiveIntegerField(default=0, verbose_name="Urutan Dokumen")
+
     # A document is stored EITHER as a local upload (file) OR as a pasted
     # Google Drive link (file_id/link_view) - never both. Local upload is
     # the default path; the Drive-link path exists because the campus
