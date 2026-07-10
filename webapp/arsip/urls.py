@@ -9,6 +9,7 @@ urlpatterns = [
     path("publik/", views.public_search, name="public_search"),
     path("portal/", views.portal_search, name="portal_search"),
     path("dashboard/", views.dashboard, name="dashboard"),
+    path("dokumen/draf/", views.dokumen_draf, name="dokumen_draf"),
     path("dokumen/upload/", views.dokumen_upload, name="dokumen_upload"),
     path("dokumen/<int:pk>/edit/", views.dokumen_edit, name="dokumen_edit"),
     path("dokumen/<int:pk>/delete/", views.dokumen_delete, name="dokumen_delete"),

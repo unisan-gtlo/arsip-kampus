@@ -1,5 +1,5 @@
-{% if page_obj.object_list %}
-<div class="accordion" id="dokumenAccordion">
+{% if page_obj %}
+<div class="accordion" id="{{ accordion_id|default:'dokumenAccordion' }}">
     {% for doc in page_obj %}
     <div class="accordion-item">
         <h2 class="accordion-header">
@@ -8,7 +8,7 @@
                 {% if doc.is_draf %}<span class="badge bg-warning text-dark ms-2">Draf</span>{% elif not doc.is_berlaku %}<span class="badge bg-secondary ms-2">Tidak Berlaku</span>{% endif %}
             </button>
         </h2>
-        <div id="doc-{{ doc.id }}" class="accordion-collapse collapse" data-bs-parent="#dokumenAccordion">
+        <div id="doc-{{ doc.id }}" class="accordion-collapse collapse" data-bs-parent="#{{ accordion_id|default:'dokumenAccordion' }}">
             <div class="accordion-body">
                 <div class="row mb-2">
                     <div class="col-md-6">

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Dokumen Draf{% endblock %}
+
+{% block content %}
+<h1>📝 Dokumen Draf</h1>
+<p class="text-secondary">Dokumen yang masih disusun tim, dikelompokkan per kategori.</p>
+<p class="text-secondary">Login sebagai: <strong>{{ user.display_name }}</strong> | Role: <code>{{ user.role }}</code></p>
+<hr>
+
+{% if groups %}
+    {% for group in groups %}
+    <div class="card shadow-sm mb-4">
+        <div class="card-header text-white d-flex justify-content-between align-items-center" style="background-color:#1976D2">
+            <h5 class="mb-0">🏷️ {{ group.kategori.nama_kategori }}</h5>
+            <span class="badge bg-light text-dark">{{ group.dokumen|length }} dokumen</span>
+        </div>
+        <div class="card-body">
+            {% include "arsip/_dokumen_accordion.html" with page_obj=group.dokumen accordion_id=group.accordion_id %}
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="alert alert-info">Tidak ada dokumen berstatus Draf saat ini.</div>
+{% endif %}
+{% endblock %}

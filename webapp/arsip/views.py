@@ -108,6 +108,30 @@ def dashboard(request):
 
 
 @role_required(User.Role.ADMIN, User.Role.OPERATOR)
+def dokumen_draf(request):
+    """Dedicated Draf inbox: no filters/pagination, always locked to
+    status=Draf, grouped by kategori (kategori.urutan order) with each
+    group's documents in their own urutan order - a simple browsing view
+    for the document-drafting team, distinct from the full Dashboard."""
+    kategori_qs = (
+        Kategori.objects.filter(dokumen__status=Dokumen.Status.DRAF)
+        .distinct()
+        .order_by("urutan", "nama_kategori")
+    )
+    groups = [
+        {
+            "kategori": kat,
+            "dokumen": Dokumen.objects.filter(
+                kategori=kat, status=Dokumen.Status.DRAF
+            ).order_by("urutan", "-tgl_upload"),
+            "accordion_id": f"draf-accordion-{kat.id}",
+        }
+        for kat in kategori_qs
+    ]
+    return render(request, "arsip/dokumen_draf.html", {"groups": groups})
+
+
+@role_required(User.Role.ADMIN, User.Role.OPERATOR)
 def dokumen_upload(request):
     kategori_qs = Kategori.objects.all()
     if not kategori_qs.exists():
