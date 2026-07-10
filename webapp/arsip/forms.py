@@ -59,7 +59,7 @@ class DokumenForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["kategori"].queryset = Kategori.objects.all().order_by("nama_kategori")
+        self.fields["kategori"].queryset = Kategori.objects.all().order_by("urutan", "nama_kategori")
         self.fields["kategori"].empty_label = None
         if self.instance.pk:
             self.fields["sumber"].initial = (
@@ -108,11 +108,12 @@ class DokumenForm(forms.ModelForm):
 class KategoriForm(forms.ModelForm):
     class Meta:
         model = Kategori
-        fields = ["nama_kategori", "nomor_terakhir"]
+        fields = ["nama_kategori", "urutan", "nomor_terakhir"]
         widgets = {
             "nama_kategori": forms.TextInput(
                 attrs={"class": "form-control", "placeholder": "contoh: Peraturan, MOU, Berita Acara"}
             ),
+            "urutan": forms.NumberInput(attrs={"class": "form-control", "min": 0}),
             "nomor_terakhir": forms.TextInput(
                 attrs={"class": "form-control", "placeholder": "contoh: 003/SK-UNISAN/V/2025"}
             ),

@@ -7,10 +7,12 @@
 <hr>
 
 <h6>Daftar Kategori ({{ kategori_list|length }})</h6>
+<p class="text-secondary small">Diurutkan berdasarkan Urutan Tampil (kecil ke besar), lalu nama kategori.</p>
 <table class="table table-hover align-middle">
     <thead>
         <tr>
             <th>#</th>
+            <th style="width:100px">Urutan</th>
             <th>Nama Kategori</th>
             <th>Nomor Dokumen Terakhir</th>
             <th style="width:220px">Aksi</th>
@@ -20,6 +22,7 @@
     {% for kat in kategori_list %}
         <tr id="row-view-{{ kat.id }}">
             <td>{{ forloop.counter }}</td>
+            <td>{{ kat.urutan }}</td>
             <td>🏷️ {{ kat.nama_kategori }}</td>
             <td>{% if kat.nomor_terakhir %}<code>{{ kat.nomor_terakhir }}</code>{% else %}<span class="text-secondary">-</span>{% endif %}</td>
             <td>
@@ -31,16 +34,19 @@
             </td>
         </tr>
         <tr id="row-edit-{{ kat.id }}" class="d-none">
-            <td colspan="4">
+            <td colspan="5">
                 <form method="post" action="{% url 'arsip:kategori_edit' kat.id %}" class="row g-2 align-items-center">
                     {% csrf_token %}
-                    <div class="col-md-4">
+                    <div class="col-md-2">
+                        <input type="number" name="urutan" value="{{ kat.urutan }}" class="form-control form-control-sm" placeholder="Urutan" min="0" required>
+                    </div>
+                    <div class="col-md-3">
                         <input type="text" name="nama_kategori" value="{{ kat.nama_kategori }}" class="form-control form-control-sm" placeholder="Nama Kategori" required>
                     </div>
                     <div class="col-md-4">
                         <input type="text" name="nomor_terakhir" value="{{ kat.nomor_terakhir }}" class="form-control form-control-sm" placeholder="Nomor Dokumen Terakhir">
                     </div>
-                    <div class="col-md-4 d-flex gap-2">
+                    <div class="col-md-3 d-flex gap-2">
                         <button type="submit" class="btn btn-primary btn-sm">💾 Simpan</button>
                         <button type="button" class="btn btn-outline-secondary btn-sm" onclick="toggleEdit({{ kat.id }})">✖ Batal</button>
                     </div>
@@ -48,7 +54,7 @@
             </td>
         </tr>
     {% empty %}
-        <tr><td colspan="4" class="text-secondary">Belum ada kategori.</td></tr>
+        <tr><td colspan="5" class="text-secondary">Belum ada kategori.</td></tr>
     {% endfor %}
     </tbody>
 </table>
@@ -60,6 +66,14 @@
     <div class="mb-3">
         <label class="form-label">Nama Kategori *</label>
         {{ form.nama_kategori }}
+    </div>
+    <div class="mb-3">
+        <label class="form-label">{{ form.urutan.label }}</label>
+        {{ form.urutan }}
+        <div class="form-text">
+            Angka lebih kecil tampil lebih dulu, misal: 1 = Universitas, 2 = Fakultas, 3 = Program Studi, dst.
+            Kategori dengan urutan sama akan diurutkan berdasarkan nama.
+        </div>
     </div>
     <div class="mb-3">
         <label class="form-label">{{ form.nomor_terakhir.label }}</label>

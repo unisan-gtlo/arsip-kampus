@@ -14,8 +14,13 @@ class Kategori(models.Model):
         max_length=255, blank=True, verbose_name="Nomor Dokumen Terakhir"
     )
 
+    # Manual display order (e.g. 1 = Universitas, 2 = Fakultas, 3 = Prodi, ...)
+    # instead of always sorting alphabetically - lower numbers show first.
+    # Categories sharing the same urutan fall back to alphabetical order.
+    urutan = models.PositiveIntegerField(default=0, verbose_name="Urutan Tampil")
+
     class Meta:
-        ordering = ["nama_kategori"]
+        ordering = ["urutan", "nama_kategori"]
         verbose_name = "Kategori"
         verbose_name_plural = "Kategori"
 
