@@ -22,29 +22,31 @@
         </div>
     </div>
 
+    {% with url_name=request.resolver_match.url_name %}
     {% if user.role == "admin" or user.role == "operator" %}
         <div class="menu-section">Menu Utama</div>
         <div class="list-group list-group-flush px-2">
-            <a href="{% url 'arsip:home' %}" class="list-group-item list-group-item-action border-0">🏠 Beranda</a>
-            <a href="{% url 'arsip:dashboard' %}" class="list-group-item list-group-item-action border-0">📊 Dashboard Dokumen</a>
-            <a href="{% url 'arsip:dashboard' %}?status=draf" class="list-group-item list-group-item-action border-0">📝 Dokumen Draf</a>
-            <a href="{% url 'arsip:dokumen_upload' %}" class="list-group-item list-group-item-action border-0">📤 Upload Dokumen</a>
-            <a href="{% url 'arsip:portal_search' %}" class="list-group-item list-group-item-action border-0">🔍 Portal Pencarian</a>
+            <a href="{% url 'arsip:home' %}" class="list-group-item list-group-item-action border-0 {% if url_name == 'home' %}active{% endif %}">🏠 Beranda</a>
+            <a href="{% url 'arsip:dashboard' %}" class="list-group-item list-group-item-action border-0 {% if url_name == 'dashboard' and request.GET.status != 'draf' %}active{% endif %}">📊 Dashboard Dokumen</a>
+            <a href="{% url 'arsip:dashboard' %}?status=draf" class="list-group-item list-group-item-action border-0 {% if url_name == 'dashboard' and request.GET.status == 'draf' %}active{% endif %}">📝 Dokumen Draf</a>
+            <a href="{% url 'arsip:dokumen_upload' %}" class="list-group-item list-group-item-action border-0 {% if url_name == 'dokumen_upload' %}active{% endif %}">📤 Upload Dokumen</a>
+            <a href="{% url 'arsip:portal_search' %}" class="list-group-item list-group-item-action border-0 {% if url_name == 'portal_search' %}active{% endif %}">🔍 Portal Pencarian</a>
         </div>
         {% if user.role == "admin" %}
             <div class="menu-section">Pengaturan</div>
             <div class="list-group list-group-flush px-2">
-                <a href="{% url 'accounts:user_list' %}" class="list-group-item list-group-item-action border-0">👥 Kelola User</a>
-                <a href="{% url 'arsip:kategori_list' %}" class="list-group-item list-group-item-action border-0">🗂️ Kelola Kategori</a>
+                <a href="{% url 'accounts:user_list' %}" class="list-group-item list-group-item-action border-0 {% if url_name == 'user_list' %}active{% endif %}">👥 Kelola User</a>
+                <a href="{% url 'arsip:kategori_list' %}" class="list-group-item list-group-item-action border-0 {% if url_name == 'kategori_list' %}active{% endif %}">🗂️ Kelola Kategori</a>
             </div>
         {% endif %}
     {% else %}
         <div class="menu-section">Menu</div>
         <div class="list-group list-group-flush px-2">
-            <a href="{% url 'arsip:home' %}" class="list-group-item list-group-item-action border-0">🏠 Beranda</a>
-            <a href="{% url 'arsip:portal_search' %}" class="list-group-item list-group-item-action border-0">🔍 Cari Dokumen</a>
+            <a href="{% url 'arsip:home' %}" class="list-group-item list-group-item-action border-0 {% if url_name == 'home' %}active{% endif %}">🏠 Beranda</a>
+            <a href="{% url 'arsip:portal_search' %}" class="list-group-item list-group-item-action border-0 {% if url_name == 'portal_search' %}active{% endif %}">🔍 Cari Dokumen</a>
         </div>
     {% endif %}
+    {% endwith %}
 
     <hr>
     <div class="px-3">
