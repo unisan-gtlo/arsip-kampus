@@ -2,13 +2,21 @@
 <nav aria-label="Navigasi halaman">
     <ul class="pagination justify-content-center">
         <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
-            <a class="page-link" href="?page={{ page_obj.previous_page_number|default:1 }}{{ querystring }}">◀</a>
+            {% if page_obj.has_previous %}
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{{ querystring }}">◀</a>
+            {% else %}
+                <span class="page-link">◀</span>
+            {% endif %}
         </li>
         <li class="page-item disabled">
             <span class="page-link">Halaman {{ page_obj.number }} / {{ paginator.num_pages }}</span>
         </li>
         <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
-            <a class="page-link" href="?page={{ page_obj.next_page_number|default:paginator.num_pages }}{{ querystring }}">▶</a>
+            {% if page_obj.has_next %}
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{{ querystring }}">▶</a>
+            {% else %}
+                <span class="page-link">▶</span>
+            {% endif %}
         </li>
     </ul>
 </nav>

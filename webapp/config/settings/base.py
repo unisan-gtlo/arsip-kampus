@@ -126,3 +126,23 @@ GCP_SERVICE_ACCOUNT = {
 SPREADSHEET_ID = env("SPREADSHEET_ID", default="")
 
 MAX_UPLOAD_SIZE_MB = env.int("MAX_UPLOAD_SIZE_MB", default=20)
+
+# Without this, unhandled exceptions on a 500 response are silently dropped
+# in production (Django's default logging only emails ADMINS, which isn't
+# configured) - `docker compose logs web` would show nothing at all for a
+# real error. This puts the full traceback back into the container's
+# stdout/stderr so `docker compose logs` actually shows it.
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {"class": "logging.StreamHandler"},
+    },
+    "loggers": {
+        "django.request": {
+            "handlers": ["console"],
+            "level": "ERROR",
+            "propagate": False,
+        },
+    },
+}
